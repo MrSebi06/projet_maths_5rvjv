@@ -4,7 +4,9 @@
 
 #include "Particle.h"
 
-void Particle::draw() {}
+void Particle::draw() {
+    mesh->draw();
+}
 
 void Particle::addForce(const Vector2 &force) {
     sumForces = sumForces + force;

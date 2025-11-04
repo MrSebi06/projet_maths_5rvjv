@@ -42,7 +42,8 @@ int main() {
 
         glUseProgram(shader_program);
 
-        circle.draw();
+        sim.draw();
+        // circle.draw();
         // get particle transform
         // glUniformMatrix4fv(modelLoc, 1, GL_FALSE, *model); // pass the transform vector
 

@@ -6,12 +6,15 @@
 #define PROJET_MATHS_5RVJV_PARTICLE_H
 
 #include "Vector/Vector2.h"
+#include "Mesh/Circle/Circle.h"
 
 class Particle {
     Vector2 sumForces;
+    Mesh* mesh;
 
 public:
-    explicit Particle(const Vector2& pos, float mass = 1.0f) : position(pos), mass(mass), velocity(), acceleration() {}
+    explicit Particle(const Vector2& pos, float mass = 1.0f) : position(pos), mass(mass), velocity(), acceleration(),
+                                                               mesh(new Circle(0.1f, 100)) {}
 
     float mass;
 
