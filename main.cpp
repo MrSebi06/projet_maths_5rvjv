@@ -1,6 +1,7 @@
 ﻿#include "init.h"
 #include "include/Mesh/Mesh.h"
 #include "Mesh/Circle/Circle.h"
+#include "Simulation.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
