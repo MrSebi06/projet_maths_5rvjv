@@ -5,7 +5,7 @@
 #ifndef PROJET_MATHS_5RVJV_PARTICLE_H
 #define PROJET_MATHS_5RVJV_PARTICLE_H
 
-#include "Vector2.h"
+#include "Vector/Vector2.h"
 
 class Particle {
     Vector2 sumForces;
