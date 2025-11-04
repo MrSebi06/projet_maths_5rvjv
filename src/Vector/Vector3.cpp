@@ -2,7 +2,8 @@
 // Created by Sacha TOUTUT on 04/11/2025.
 //
 
-#include "../Vector3.h"
+#include "Vector/Vector3.h"
+
 #include <algorithm>
 #include <cmath>
 
@@ -41,11 +42,11 @@ Vector3 Vector3::operator/(const float &factor) {
 }
 
 float Vector3::magnitude() const {
-    return std::sqrt(x*x + y*y + z*z);
+    return std::sqrt(x * x + y * y + z * z);
 }
 
 float Vector3::dot(const Vector3 &other) const {
-    return x*other.x + y*other.y + z*other.z;
+    return x * other.x + y * other.y + z * other.z;
 }
 
 Vector3 Vector3::cross(const Vector3 &other) const {
@@ -56,8 +57,7 @@ Vector3 Vector3::cross(const Vector3 &other) const {
     };
 }
 
-std::ostream& operator<<(std::ostream& os, const Vector3& v)
-{
+std::ostream &operator<<(std::ostream &os, const Vector3 &v) {
     os << "Vector3(" << v.x << ", " << v.y << ", " << v.z << ")";
     return os;
 }

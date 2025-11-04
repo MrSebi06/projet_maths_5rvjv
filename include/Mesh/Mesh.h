@@ -1,6 +1,6 @@
 ﻿#ifndef PROJET_MATHS_MESH_H
 #define PROJET_MATHS_MESH_H
-#include "glad/glad.h"
+#include "../glad/glad.h"
 
 
 struct Mesh {

@@ -8,7 +8,6 @@
 #include <iostream>
 
 class Vector3 {
-private:
     void swap(Vector3& other);
 
 public:

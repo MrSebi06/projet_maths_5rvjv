@@ -1,6 +1,10 @@
 ﻿#include "init.h"
-#include "Mesh.h"
+#include "include/Mesh/Mesh.h"
+#include "Mesh/Circle/Circle.h"
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 void process_input(GLFWwindow *window);
 
@@ -9,21 +13,20 @@ int main() {
     GLFW_config();
     GLFWwindow *window = create_window(800, 600);
 
+    const float aspect = 800.0f / 600.0f;
+    glm::mat4 projection = glm::ortho(-aspect, aspect, -1.0f, 1.0f, -1.0f, 1.0f);
+
     GLAD_init();
 
     const GLuint shader_program = create_shader_program("base.vert", "base.frag");
+    glUseProgram(shader_program);
 
-    constexpr GLfloat vertices[] = {
-        0.5f, 0.5f, 0.0f, // top right
-        0.5f, -0.5f, 0.0f, // bottom right
-        -0.5f, -0.5f, 0.0f, // bottom left
-        -0.5f, 0.5f, 0.0f // top left
-    };
-    constexpr GLuint indices[] = {
-        0, 1, 3,
-        1, 2, 3
-    };
-    auto mesh = create_mesh(vertices, sizeof(vertices), indices, sizeof(indices));
+    const GLint projLoc = glGetUniformLocation(shader_program, "projection");
+    const GLint modelLoc = glGetUniformLocation(shader_program, "model");
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+
+    auto circle = Circle(1.0, 300);
 
     while (!glfwWindowShouldClose(window)) {
         process_input(window);
@@ -33,13 +36,15 @@ int main() {
 
         glUseProgram(shader_program);
 
-        mesh.draw();
+        circle.draw();
+        // get particle transform
+        // glUniformMatrix4fv(modelLoc, 1, GL_FALSE, *model); // pass the transform vector
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    mesh.cleanup();
+    circle.cleanup();
     glDeleteProgram(shader_program);
 
     glfwTerminate();
