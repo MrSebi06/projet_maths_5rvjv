@@ -10,7 +10,7 @@ include_directories(include)
 
 add_executable(projet_maths_5rvjv main.cpp src/glad.c
         src/Mesh.cpp
-        src/Mesh.h
+        include/Mesh.h
         src/init.cpp
         include/init.h)
 

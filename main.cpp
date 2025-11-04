@@ -1,5 +1,5 @@
 ﻿#include "init.h"
-#include "src/Mesh.h"
+#include "Mesh.h"
 
 
 void process_input(GLFWwindow *window);
