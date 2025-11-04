@@ -6,8 +6,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-void process_input(GLFWwindow *window);
-
+void process_input(GLFWwindow *window, Simulation& sim);
 
 int main() {
     GLFW_config();
@@ -31,7 +30,7 @@ int main() {
     // Initialize simulation
     Simulation sim;
     while (!glfwWindowShouldClose(window)) {
-        process_input(window);
+        process_input(window, sim);
 
         // Step simulation forward
         sim.update();
@@ -58,7 +57,18 @@ int main() {
     return 0;
 }
 
-void process_input(GLFWwindow *window) {
+void process_input(GLFWwindow *window, Simulation& sim) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        sim.addParticle({});
+
+    if (glfwGetKey(window, GLFW_KEY_RIGHT))
+        sim.wind += Vector2(0.1f, 0);
+    if (glfwGetKey(window, GLFW_KEY_LEFT))
+        sim.wind += Vector2(-0.1f, 0);
+    if (glfwGetKey(window, GLFW_KEY_UP))
+        sim.wind += Vector2(0, -0.1f);
+    if (glfwGetKey(window, GLFW_KEY_DOWN))
+        sim.wind += Vector2(0, 0.1f);
 }
