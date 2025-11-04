@@ -11,6 +11,8 @@ class Particle {
     Vector2 sumForces;
 
 public:
+    explicit Particle(const Vector2& pos, float mass = 1.0f) : position(pos), mass(mass), velocity(), acceleration() {}
+
     float mass;
 
     Vector2 position;

@@ -28,9 +28,15 @@ int main() {
 
     auto circle = Circle(1.0, 300);
 
+    // Initialize simulation
+    Simulation sim;
     while (!glfwWindowShouldClose(window)) {
         process_input(window);
 
+        // Step simulation forward
+        sim.update();
+
+        // Clear screen
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
