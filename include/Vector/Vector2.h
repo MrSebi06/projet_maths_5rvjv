@@ -26,6 +26,11 @@ public:
     Vector2 operator*(const float& factor);
     Vector2 operator/(const float& factor);
 
+    Vector2& operator+=(const Vector2& other);
+    Vector2& operator-=(const Vector2& other);
+    Vector2& operator*=(const float& other);
+    Vector2& operator/=(const float& other);
+
     float magnitude() const;
     float dot(const Vector2& other) const;
     float cross(const Vector2& other) const;
