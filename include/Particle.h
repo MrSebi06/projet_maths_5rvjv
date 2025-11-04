@@ -10,11 +10,17 @@
 
 class Particle {
     Vector2 sumForces;
-    Mesh* mesh;
 
 public:
-    explicit Particle(const Vector2& pos, float mass = 1.0f) : position(pos), mass(mass), velocity(), acceleration(),
-                                                               mesh(new Circle(0.1f, 100)) {}
+    Mesh *mesh;
+
+    explicit Particle(const Vector2 &pos, float mass = 1.0f)
+        : mesh(new Circle(0.1f, 100)),
+          mass(mass),
+          position(pos),
+          velocity(),
+          acceleration() {
+    }
 
     float mass;
 
@@ -22,11 +28,13 @@ public:
     Vector2 velocity;
     Vector2 acceleration;
 
-    void draw();
-    void resetForces();
-    void addForce(const Vector2& force);
+    void draw() const;
 
-    void integrate(const float& dt);
+    void resetForces();
+
+    void addForce(const Vector2 &force);
+
+    void integrate(const float &dt);
 };
 
 

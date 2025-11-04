@@ -18,7 +18,8 @@ public:
     float radius;
     unsigned int segments;
 
-    explicit Circle(const float radius, const unsigned int segments) : radius(radius), segments(segments) {
+    explicit Circle(const float radius, const unsigned int segments) : radius(radius),
+                                                                       segments(segments) {
         const double angle = 360.0 / segments;
 
         std::vector<Vector3> vertices;

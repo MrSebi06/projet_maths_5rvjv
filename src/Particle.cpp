@@ -4,8 +4,8 @@
 
 #include "Particle.h"
 
-void Particle::draw() {
-    mesh->draw();
+void Particle::draw() const {
+    mesh->draw(&position);
 }
 
 void Particle::addForce(const Vector2 &force) {

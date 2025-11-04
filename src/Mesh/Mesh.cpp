@@ -2,6 +2,8 @@
 
 #include <stdexcept>
 
+#include "Vector/Vector2.h"
+
 Mesh create_mesh(const GLfloat *vertices, const GLsizeiptr vertices_size,
                  const GLuint *indices, const GLsizeiptr indices_size) {
     if (!vertices || !indices || vertices_size == 0 || indices_size == 0) {
@@ -32,10 +34,11 @@ Mesh create_mesh(const GLfloat *vertices, const GLsizeiptr vertices_size,
     return mesh;
 }
 
-void Mesh::draw() const {
+void Mesh::draw(const Vector2 *position) const {
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, nullptr);
     glBindVertexArray(0);
+    glUniform2f(modelLoc, position->x, position->y);
 }
 
 

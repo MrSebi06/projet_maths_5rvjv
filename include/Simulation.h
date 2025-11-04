@@ -13,15 +13,22 @@ class Simulation {
 private:
     std::vector<Particle> particles;
     std::chrono::time_point<std::chrono::high_resolution_clock> last_tick;
+
 public:
     Vector2 wind;
-    
-    Simulation() : particles(std::vector<Particle>()), last_tick(std::chrono::high_resolution_clock::now()), wind() {}
+
+    Simulation() : particles(std::vector<Particle>()), last_tick(std::chrono::high_resolution_clock::now()), wind() {
+    }
 
     void update();
+
     void draw();
 
-    void addParticle(const Vector2& pos);
+    void addParticle(const Vector2 &pos);
+
+    std::vector<Particle> getParticles() {
+        return particles;
+    }
 };
 
 #endif //PROJET_MATHS_5RVJV_SIMULATION_H

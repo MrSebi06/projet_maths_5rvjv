@@ -7,7 +7,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-void process_input(GLFWwindow *window, Simulation& sim);
+void process_input(GLFWwindow *window, Simulation &sim);
 
 int main() {
     GLFW_config();
@@ -22,14 +22,14 @@ int main() {
     glUseProgram(shader_program);
 
     const GLint projLoc = glGetUniformLocation(shader_program, "projection");
-    const GLint modelLoc = glGetUniformLocation(shader_program, "model");
     glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
 
-    auto circle = Circle(1.0, 300);
-
     // Initialize simulation
     Simulation sim;
+    for (const auto &particle: sim.getParticles()) {
+        particle.mesh->assign_shader(shader_program);
+    }
     while (!glfwWindowShouldClose(window)) {
         process_input(window, sim);
 
@@ -43,15 +43,11 @@ int main() {
         glUseProgram(shader_program);
 
         sim.draw();
-        // circle.draw();
-        // get particle transform
-        // glUniformMatrix4fv(modelLoc, 1, GL_FALSE, *model); // pass the transform vector
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    circle.cleanup();
     glDeleteProgram(shader_program);
 
     glfwTerminate();
@@ -59,7 +55,7 @@ int main() {
     return 0;
 }
 
-void process_input(GLFWwindow *window, Simulation& sim) {
+void process_input(GLFWwindow *window, Simulation &sim) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)

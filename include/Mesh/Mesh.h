@@ -1,17 +1,26 @@
 ﻿#ifndef PROJET_MATHS_MESH_H
 #define PROJET_MATHS_MESH_H
 #include "../glad/glad.h"
+#include "Vector/Vector2.h"
 
 
 struct Mesh {
     GLuint VAO{}, VBO{}, EBO{};
+    GLuint shader_program{};
+    GLint modelLoc{};
     GLsizei index_count{};
 
     ~Mesh() { cleanup(); }
 
-    void draw() const;
+    void draw(const Vector2 *position) const;
 
     void cleanup();
+
+
+    void assign_shader(const GLuint shader_program_) {
+        shader_program = shader_program_;
+        modelLoc = glGetUniformLocation(shader_program, "position");
+    }
 };
 
 Mesh create_mesh(const float *vertices, GLsizeiptr vertices_size,
