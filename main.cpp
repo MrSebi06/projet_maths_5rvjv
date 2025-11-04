@@ -25,8 +25,6 @@ int main() {
     };
     auto mesh = create_mesh(vertices, sizeof(vertices), indices, sizeof(indices));
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
     while (!glfwWindowShouldClose(window)) {
         process_input(window);
 
