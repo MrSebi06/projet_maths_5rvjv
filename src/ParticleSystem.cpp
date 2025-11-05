@@ -54,7 +54,7 @@ void ParticleSystem::setup_instance_buffer() {
                  MAX_PARTICLES * sizeof(ParticleInstance),
                  nullptr, GL_DYNAMIC_DRAW);
 
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(ParticleInstance), static_cast<void *>(nullptr));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(ParticleInstance), nullptr);
     glEnableVertexAttribArray(1);
     glVertexAttribDivisor(1, 1);
 

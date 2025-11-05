@@ -29,11 +29,8 @@ int main() {
     Simulation sim;
     ParticleSystem ps;
     sim.register_particle_system(&ps);
-    // for (const auto &particle: sim.getParticles()) {
-    //     particle.mesh->assign_shader(shader_program);
-    // }
 
-    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     while (!glfwWindowShouldClose(window)) {
         process_input(window, sim, ps);
