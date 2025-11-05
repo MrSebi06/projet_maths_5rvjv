@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <cmath>
 
-void Vector2::swap(Vector2 &other) {
+void Vector2::swap(Vector2 &other) noexcept {
     std::swap(x, other.x);
     std::swap(y, other.y);
 }
@@ -39,25 +39,25 @@ Vector2 Vector2::operator/(const float &factor) {
     return {x / factor, y / factor};
 }
 
-Vector2& Vector2::operator+=(const Vector2 &other) {
+Vector2 &Vector2::operator+=(const Vector2 &other) {
     Vector2 tmp = *this + other;
     swap(tmp);
     return *this;
 }
 
-Vector2& Vector2::operator-=(const Vector2 &other) {
+Vector2 &Vector2::operator-=(const Vector2 &other) {
     Vector2 tmp = *this - other;
     swap(tmp);
     return *this;
 }
 
-Vector2& Vector2::operator*=(const float &factor) {
+Vector2 &Vector2::operator*=(const float &factor) {
     Vector2 tmp = *this * factor;
     swap(tmp);
     return *this;
 }
 
-Vector2& Vector2::operator/=(const float &factor) {
+Vector2 &Vector2::operator/=(const float &factor) {
     Vector2 tmp = *this / factor;
     swap(tmp);
     return *this;

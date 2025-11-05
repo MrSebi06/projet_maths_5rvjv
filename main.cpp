@@ -7,13 +7,13 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-void process_input(GLFWwindow *window, Simulation &sim);
+void process_input(GLFWwindow *window, Simulation &sim, ParticleSystem &ps);
 
 int main() {
     GLFW_config();
     GLFWwindow *window = create_window(800, 600);
 
-    const float aspect = 800.0f / 600.0f;
+    constexpr float aspect = 800.0f / 600.0f;
     glm::mat4 projection = glm::ortho(-aspect, aspect, -1.0f, 1.0f, -1.0f, 1.0f);
 
     GLAD_init();
@@ -27,11 +27,16 @@ int main() {
 
     // Initialize simulation
     Simulation sim;
-    for (const auto &particle: sim.getParticles()) {
-        particle.mesh->assign_shader(shader_program);
-    }
+    ParticleSystem ps;
+    sim.register_particle_system(&ps);
+    // for (const auto &particle: sim.getParticles()) {
+    //     particle.mesh->assign_shader(shader_program);
+    // }
+
+    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
     while (!glfwWindowShouldClose(window)) {
-        process_input(window, sim);
+        process_input(window, sim, ps);
 
         // Step simulation forward
         sim.update();
@@ -55,11 +60,11 @@ int main() {
     return 0;
 }
 
-void process_input(GLFWwindow *window, Simulation &sim) {
+void process_input(GLFWwindow *window, Simulation &sim, ParticleSystem &ps) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        sim.addParticle({});
+        ps.emit();
 
     if (glfwGetKey(window, GLFW_KEY_RIGHT))
         sim.wind += Vector2(0.1f, 0);
