@@ -11,18 +11,19 @@
 
 
 class ParticleSystem {
-    std::vector<Particle> particles;
-
-    GLuint VAO{}, VBO{}, EBO{};
-    GLuint instanceVBO{};
-
-    static constexpr int MAX_PARTICLES = 10000;
-
     struct ParticleInstance {
         Vector2 position;
         Vector3 color;
     };
 
+    std::vector<Particle> particles;
+    mutable std::vector<ParticleInstance> instanceData;
+
+    GLuint VAO{}, VBO{}, EBO{};
+    GLuint instanceVBO{};
+    GLsizei indexCount{};
+
+    static constexpr int MAX_PARTICLES = 10000;
 
     void setup_geometry();
     void setup_instance_buffer();

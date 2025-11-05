@@ -9,7 +9,8 @@ find_package(glm REQUIRED)
 
 include_directories(include)
 
-add_executable(projet_maths_5rvjv main.cpp src/glad.c
+add_executable(projet_maths_5rvjv main.cpp
+        src/glad.c
         src/Mesh/Mesh.cpp
         include/Mesh/Mesh.h
         src/init.cpp

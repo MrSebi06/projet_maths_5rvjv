@@ -25,6 +25,8 @@ void ParticleSystem::setup_geometry() {
         indices.push_back(i + 1);
     }
 
+    indexCount = indices.size();
+
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
@@ -72,10 +74,14 @@ void ParticleSystem::update(const float dt) {
 }
 
 void ParticleSystem::draw() const {
-    std::vector<ParticleInstance> instanceData;
+    instanceData.clear();
+    instanceData.reserve(particles.size());
+
     for (const auto &p: particles) {
         instanceData.push_back({p.position, p.color});
     }
+
+    if (instanceData.empty()) return;
 
     // Upload instance data
     glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
@@ -84,13 +90,13 @@ void ParticleSystem::draw() const {
 
     // Draw all particles in ONE call
     glBindVertexArray(VAO);
-    glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr,
+    glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr,
                             instanceData.size());
 }
 
 void ParticleSystem::emit() {
     if (particles.size() < MAX_PARTICLES) {
-        particles.emplace_back(Vector2(0.0, 0.0), Vector3(1.0, 0.0, 0.0));
+        particles.emplace_back(Vector2(0.0, 0.0), Vector3(1.0, 1.0, 0.0));
     }
 }
 
