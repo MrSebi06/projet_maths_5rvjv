@@ -9,7 +9,8 @@ find_package(glm REQUIRED)
 
 include_directories(include)
 
-add_executable(projet_maths_5rvjv main.cpp src/glad.c
+add_executable(projet_maths_5rvjv main.cpp
+        src/glad.c
         src/Mesh/Mesh.cpp
         include/Mesh/Mesh.h
         src/init.cpp
@@ -23,7 +24,9 @@ add_executable(projet_maths_5rvjv main.cpp src/glad.c
         src/Vector/Vector3.cpp
         src/Vector/Vector2.cpp
         src/Particle.cpp
-        src/Simulation.cpp)
+        src/Simulation.cpp
+        src/ParticleSystem.cpp
+        include/ParticleSystem.h)
 
 target_link_libraries(projet_maths_5rvjv ${OPENGL_LIBRARIES} glfw)
 

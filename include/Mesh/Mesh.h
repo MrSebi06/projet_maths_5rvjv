@@ -1,6 +1,7 @@
 ﻿#ifndef PROJET_MATHS_MESH_H
 #define PROJET_MATHS_MESH_H
-#include "../glad/glad.h"
+
+#include "glad/glad.h"
 #include "Vector/Vector2.h"
 
 
@@ -16,6 +17,8 @@ struct Mesh {
 
     void cleanup();
 
+    void register_vertices(const Vector2 *vertices, GLsizeiptr vertices_size,
+                           const unsigned int *indices, GLsizeiptr indices_size);
 
     void assign_shader(const GLuint shader_program_) {
         shader_program = shader_program_;
@@ -23,7 +26,5 @@ struct Mesh {
     }
 };
 
-Mesh create_mesh(const float *vertices, GLsizeiptr vertices_size,
-                 const unsigned int *indices, GLsizeiptr indices_size);
 
 #endif //PROJET_MATHS_MESH_H
