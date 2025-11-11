@@ -15,7 +15,7 @@ void Simulation::update() {
 
     for (const auto &particle_system: particle_systems) {
         particle_system->add_force(wind);
-        // particles[i].add_force(GRAVITY);
+        particle_system->add_force(GRAVITY);
         particle_system->update(dt);
     }
 
