@@ -30,7 +30,7 @@ int main() {
     ParticleSystem ps;
     sim.register_particle_system(&ps);
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     while (!glfwWindowShouldClose(window)) {
         process_input(window, sim, ps);
