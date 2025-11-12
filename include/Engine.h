@@ -4,26 +4,28 @@
 
 #ifndef PROJET_MATHS_5RVJV_ENGINE_H
 #define PROJET_MATHS_5RVJV_ENGINE_H
+
 #include "PhysicsSystem.h"
+#include "ParticleSystem.h"
 
 
-class Engine {
-    PhysicsSystem *physics_system;
-    ParticleSystem *particle_system;
+namespace Engine {
+    inline PhysicsSystem physics;
+    inline ParticleSystem particles;
 
-public:
-    Engine() {
-        physics_system = new PhysicsSystem();
-        particle_system = new ParticleSystem();
+    inline void init() {
+        particles.init();
     }
 
-    void update(float dt) const;
+    inline void update(const float dt) {
+        physics.update(dt);
+        particles.update(dt);
+    }
 
-    void draw() const;
-
-    void emit_particle() const;
-    void add_wind(const Vector2 &wind) const;
-};
+    inline void draw() {
+        particles.draw();
+    }
+}
 
 
 #endif //PROJET_MATHS_5RVJV_ENGINE_H
