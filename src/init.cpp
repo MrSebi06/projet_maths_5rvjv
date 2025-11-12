@@ -3,6 +3,8 @@
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.inl>
 
 #include "glad/glad.h"
 
@@ -79,4 +81,11 @@ GLuint create_shader_program(const std::string &vert, const std::string &frag) {
     glDeleteShader(fragment_shader);
 
     return shader_program;
+}
+
+void setup_aspect_ratio(const int width, const int height, const GLuint shader_program) {
+    const float aspect = static_cast<float>(width) / static_cast<float>(height);
+    auto projection = glm::ortho(-aspect, aspect, -1.0f, 1.0f, -1.0f, 1.0f);
+    const GLint projLoc = glGetUniformLocation(shader_program, "projection");
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 }
