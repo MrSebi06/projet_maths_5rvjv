@@ -2,16 +2,12 @@
 
 #include "init.h"
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
 #include "Engine.h"
 
 #define WIDTH 800
 #define HEIGHT 600
 
-void process_input(GLFWwindow *window, const Engine *engine);
+void process_input(GLFWwindow *window);
 
 int main() {
     GLFW_config();
@@ -23,11 +19,11 @@ int main() {
     glUseProgram(shader_program);
     setup_aspect_ratio(WIDTH, HEIGHT, shader_program);
 
-    Engine engine;
+    Engine::init();
 
     std::chrono::time_point<std::chrono::high_resolution_clock> last_tick = std::chrono::high_resolution_clock::now();
     while (!glfwWindowShouldClose(window)) {
-        process_input(window, &engine);
+        process_input(window);
 
         // Calculate delta time using system clock
         const auto current_time = std::chrono::high_resolution_clock::now();
@@ -36,13 +32,13 @@ int main() {
         const float dt = elapsed_ms.count() / 1000000.0f;
         last_tick = current_time;
 
-        engine.update(dt);
+        Engine::update(dt);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         glUseProgram(shader_program);
 
-        engine.draw();
+        Engine::draw();
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -55,18 +51,18 @@ int main() {
     return 0;
 }
 
-void process_input(GLFWwindow *window, const Engine *engine) {
+void process_input(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        engine->emit_particle();
+        Engine::particles.emit();
 
     if (glfwGetKey(window, GLFW_KEY_RIGHT))
-        engine->add_wind(Vector2(0.1f, 0));
+        Engine::physics.add_wind(Vector2(0.1f, 0));
     if (glfwGetKey(window, GLFW_KEY_LEFT))
-        engine->add_wind(Vector2(-0.1f, 0));
+        Engine::physics.add_wind(Vector2(-0.1f, 0));
     if (glfwGetKey(window, GLFW_KEY_UP))
-        engine->add_wind(Vector2(0, 0.1f));
+        Engine::physics.add_wind(Vector2(0, 0.1f));
     if (glfwGetKey(window, GLFW_KEY_DOWN))
-        engine->add_wind(Vector2(0, -0.1f));
+        Engine::physics.add_wind(Vector2(0, -0.1f));
 }
