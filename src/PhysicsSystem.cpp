@@ -4,14 +4,19 @@
 
 #include <PhysicsSystem.h>
 
+#include "Engine.h"
+
 #define GRAVITY Vector2(0, -9.81f)
 
-void PhysicsSystem::update(const float dt) {
-    // Go through every rigidbody and softbody and apply physics
+void PhysicsSystem::update(const float dt) const {
+    Engine::particles.add_force(wind);
+    Engine::particles.add_force(GRAVITY);
+    // Ideally: go through every rigidbody and softbody and apply physics
 }
 
 void PhysicsSystem::add_wind(const Vector2 &wind_) {
     wind += wind_;
 }
+
 
 

@@ -16,7 +16,7 @@ public:
 
     PhysicsSystem() = default;
 
-    void update(float dt);
+    void update(float dt) const;
 
     void add_wind(const Vector2 &wind_);
 };
