@@ -1,48 +1,48 @@
-﻿#include "init.h"
-#include "include/Mesh/Mesh.h"
-#include "Mesh/Circle/Circle.h"
-#include "Simulation.h"
+﻿#include <chrono>
+
+#include "init.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-void process_input(GLFWwindow *window, Simulation &sim, ParticleSystem &ps);
+#include "Engine.h"
+
+#define WIDTH 800
+#define HEIGHT 600
+
+void process_input(GLFWwindow *window, const Engine *engine);
 
 int main() {
     GLFW_config();
-    GLFWwindow *window = create_window(800, 600);
-
-    constexpr float aspect = 800.0f / 600.0f;
-    glm::mat4 projection = glm::ortho(-aspect, aspect, -1.0f, 1.0f, -1.0f, 1.0f);
+    GLFWwindow *window = create_window(WIDTH, HEIGHT);
 
     GLAD_init();
 
     const GLuint shader_program = create_shader_program("base.vert", "base.frag");
     glUseProgram(shader_program);
+    setup_aspect_ratio(WIDTH, HEIGHT, shader_program);
 
-    const GLint projLoc = glGetUniformLocation(shader_program, "projection");
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+    Engine engine;
 
-
-    // Initialize simulation
-    Simulation sim;
-    ParticleSystem ps;
-    sim.register_particle_system(&ps);
-
-    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
+    std::chrono::time_point<std::chrono::high_resolution_clock> last_tick = std::chrono::high_resolution_clock::now();
     while (!glfwWindowShouldClose(window)) {
-        process_input(window, sim, ps);
+        process_input(window, &engine);
 
-        sim.update();
+        // Calculate delta time using system clock
+        const auto current_time = std::chrono::high_resolution_clock::now();
+        const auto elapsed = current_time - last_tick;
+        const auto elapsed_ms = duration_cast<std::chrono::microseconds>(elapsed);
+        const float dt = elapsed_ms.count() / 1000000.0f;
+        last_tick = current_time;
+
+        engine.update(dt);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-
         glUseProgram(shader_program);
 
-        sim.draw();
+        engine.draw();
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -55,18 +55,18 @@ int main() {
     return 0;
 }
 
-void process_input(GLFWwindow *window, Simulation &sim, ParticleSystem &ps) {
+void process_input(GLFWwindow *window, const Engine *engine) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        ps.emit();
+        engine->emit_particle();
 
     if (glfwGetKey(window, GLFW_KEY_RIGHT))
-        sim.wind += Vector2(0.1f, 0);
+        engine->add_wind(Vector2(0.1f, 0));
     if (glfwGetKey(window, GLFW_KEY_LEFT))
-        sim.wind += Vector2(-0.1f, 0);
+        engine->add_wind(Vector2(-0.1f, 0));
     if (glfwGetKey(window, GLFW_KEY_UP))
-        sim.wind += Vector2(0, -0.1f);
+        engine->add_wind(Vector2(0, 0.1f));
     if (glfwGetKey(window, GLFW_KEY_DOWN))
-        sim.wind += Vector2(0, 0.1f);
+        engine->add_wind(Vector2(0, -0.1f));
 }
