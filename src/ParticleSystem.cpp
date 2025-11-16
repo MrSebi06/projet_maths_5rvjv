@@ -74,15 +74,16 @@ void ParticleSystem::init() {
 
 void ParticleSystem::update(const float dt) {
     for (size_t i = 0; i < particles.size();) {
-        particles[i].integrate(dt);
         particles[i].age += dt;
 
         if (particles[i].age >= particles[i].lifetime) {
             std::swap(particles[i], particles.back());
             particles.pop_back();
-        } else {
-            ++i;
+            continue;
         }
+
+        particles[i].integrate(dt);
+        ++i;
     }
 }
 
