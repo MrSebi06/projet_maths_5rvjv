@@ -66,14 +66,14 @@ void process_input(GLFWwindow *window) {
 
         static std::random_device rd;
         static std::mt19937 gen(rd());
-        static std::uniform_real_distribution dis(-1.0f, 1.0f);
-        static std::uniform_real_distribution s_dis(0.2f, 1.0f);
-        const Vector2 velocity(s_dis(gen) * dis(gen), s_dis(gen) * dis(gen));
+        static std::uniform_real_distribution angle_dist(-1.0f, 1.0f);
+        static std::uniform_real_distribution speed_dist(0.2f, 1.0f);
+        const Vector2 velocity(speed_dist(gen) * angle_dist(gen), speed_dist(gen) * angle_dist(gen));
 
-        static std::uniform_real_distribution l_dis(0.05f, 0.3f);
+        static std::uniform_real_distribution lifetime_dist(0.05f, 0.3f);
 
         Engine::particles.emit(screen_to_world(xpos, ypos),
-                               l_dis(gen),
+                               lifetime_dist(gen),
                                velocity
         );
     }
