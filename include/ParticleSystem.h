@@ -5,7 +5,8 @@
 #ifndef PROJET_MATHS_5RVJV_PARTICLESYSTEM_H
 #define PROJET_MATHS_5RVJV_PARTICLESYSTEM_H
 
-#include <vector>
+#include <Vector/Vector2.h>
+#include <Vector/Vector3.h>
 
 #include "Particle.h"
 
@@ -29,16 +30,11 @@ class ParticleSystem {
     void setup_instance_buffer();
 
 public:
-    ParticleSystem(
-    ) {
-        setup_geometry();
-        setup_instance_buffer();
-    }
-
+    void init();
     void update(float dt);
     void draw() const;
-    void emit();
 
+    void emit();
     void add_force(const Vector2 &force);
 };
 

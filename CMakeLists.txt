@@ -24,9 +24,10 @@ add_executable(projet_maths_5rvjv main.cpp
         src/Vector/Vector3.cpp
         src/Vector/Vector2.cpp
         src/Particle.cpp
-        src/Simulation.cpp
+        src/PhysicsSystem.cpp
         src/ParticleSystem.cpp
-        include/ParticleSystem.h)
+        include/ParticleSystem.h
+        include/Engine.h)
 
 target_link_libraries(projet_maths_5rvjv ${OPENGL_LIBRARIES} glfw)
 

@@ -67,6 +67,11 @@ void ParticleSystem::setup_instance_buffer() {
 }
 
 
+void ParticleSystem::init() {
+    setup_geometry();
+    setup_instance_buffer();
+}
+
 void ParticleSystem::update(const float dt) {
     for (auto &p: particles) {
         p.integrate(dt);
