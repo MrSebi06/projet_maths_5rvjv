@@ -18,7 +18,7 @@ class ParticleSystem {
     };
 
     std::vector<Particle> particles;
-    mutable std::vector<ParticleInstance> instanceData;
+    mutable std::vector<ParticleInstance> instance_data;
 
     GLuint VAO{}, VBO{}, EBO{};
     GLuint instanceVBO{};
@@ -34,7 +34,7 @@ public:
     void update(float dt);
     void draw() const;
 
-    void emit();
+    void emit(const Vector2 &pos, float lifetime, const Vector2 &initial_velocity);
     void add_force(const Vector2 &force);
 };
 

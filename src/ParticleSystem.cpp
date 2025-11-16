@@ -5,7 +5,7 @@
 #include "ParticleSystem.h"
 
 void ParticleSystem::setup_geometry() {
-    constexpr float radius = 0.1f;
+    constexpr float radius = 0.01f;
     constexpr int segments = 18;
     constexpr double angle = 360.0 / segments;
 
@@ -73,35 +73,43 @@ void ParticleSystem::init() {
 }
 
 void ParticleSystem::update(const float dt) {
-    for (auto &p: particles) {
-        p.integrate(dt);
+    for (size_t i = 0; i < particles.size();) {
+        particles[i].integrate(dt);
+        particles[i].age += dt;
+
+        if (particles[i].age >= particles[i].lifetime) {
+            std::swap(particles[i], particles.back());
+            particles.pop_back();
+        } else {
+            ++i;
+        }
     }
 }
 
 void ParticleSystem::draw() const {
-    instanceData.clear();
-    instanceData.reserve(particles.size());
+    instance_data.clear();
+    instance_data.reserve(particles.size());
 
     for (const auto &p: particles) {
-        instanceData.push_back({p.position, p.color});
+        instance_data.push_back({p.position, p.color});
     }
 
-    if (instanceData.empty()) return;
+    if (instance_data.empty()) return;
 
     // Upload instance data
     glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, instanceData.size() * sizeof(ParticleInstance),
-                    instanceData.data());
+    glBufferSubData(GL_ARRAY_BUFFER, 0, instance_data.size() * sizeof(ParticleInstance),
+                    instance_data.data());
 
     // Draw all particles in ONE call
     glBindVertexArray(VAO);
     glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr,
-                            instanceData.size());
+                            instance_data.size());
 }
 
-void ParticleSystem::emit() {
+void ParticleSystem::emit(const Vector2 &pos, float lifetime, const Vector2 &initial_velocity) {
     if (particles.size() < MAX_PARTICLES) {
-        particles.emplace_back(Vector2(0.0, 0.0), Vector3(1.0, 1.0, 0.0));
+        particles.emplace_back(pos, Vector3(1.0, 1.0, 0.0), 1.0, lifetime, initial_velocity);
     }
 }
 

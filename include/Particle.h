@@ -17,12 +17,16 @@ struct Particle {
 
     Vector3 color;
 
-    explicit Particle(const Vector2 &pos, const Vector3 &color, const float mass = 1.0f)
-        : mass(mass),
-          position(pos),
+    float lifetime;
+    float age = 0.0;
+
+    explicit Particle(const Vector2 &pos, const Vector3 &color, const float mass = 1.0f, const float lifetime = 1.0f,
+                      const Vector2 &velocity = Vector2())
+        : position(pos),
+          velocity(velocity),
           color(color),
-          velocity(),
-          acceleration() {}
+          lifetime(lifetime),
+          mass(mass) {}
 
     float mass;
 
