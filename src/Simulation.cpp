@@ -3,31 +3,27 @@
 //
 
 #include <Simulation.h>
-#include <iostream>
 
 #define GRAVITY Vector2(0, -9.81f)
 
 void Simulation::update() {
     // Calculate delta time using system clock
-    auto current_time = std::chrono::high_resolution_clock::now();
-    auto elapsed = current_time - last_tick;
-    auto elapsed_ms = duration_cast<std::chrono::microseconds>(elapsed);
-    float dt = elapsed_ms.count() / 1000000.0f;
+    const auto current_time = std::chrono::high_resolution_clock::now();
+    const auto elapsed = current_time - last_tick;
+    const auto elapsed_ms = duration_cast<std::chrono::microseconds>(elapsed);
+    const float dt = elapsed_ms.count() / 1000000.0f;
 
-    for (int i = 0; i < particles.size(); ++i) {
-        particles[i].addForce(wind);
-        particles[i].addForce(GRAVITY);
-        particles[i].integrate(dt);
+    for (const auto &particle_system: particle_systems) {
+        particle_system->add_force(wind);
+        particle_system->add_force(GRAVITY);
+        particle_system->update(dt);
     }
 
     last_tick = current_time;
 }
 
-void Simulation::draw() {
-    for (int i = 0; i < particles.size(); ++i)
-        particles[i].draw();
+void Simulation::draw() const {
+    for (const auto &particle_system: particle_systems)
+        particle_system->draw();
 }
 
-void Simulation::addParticle(const Vector2 &pos) {
-    particles.emplace_back(pos);
-}

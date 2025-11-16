@@ -4,10 +4,6 @@
 
 #include "Particle.h"
 
-void Particle::draw() const {
-    mesh->draw(&position);
-}
-
 void Particle::addForce(const Vector2 &force) {
     sumForces = sumForces + force;
 }

@@ -22,45 +22,24 @@ public:
                                                                        segments(segments) {
         const double angle = 360.0 / segments;
 
-        std::vector<Vector3> vertices;
+        std::vector<Vector2> vertices;
         for (unsigned int i = 0; i < segments; i++) {
             const double currentAngle = angle * i;
             double x = radius * cos(deg2rad(currentAngle));
             double y = radius * sin(deg2rad(currentAngle));
 
-            vertices.emplace_back(x, y, 0.0f);
+            vertices.emplace_back(x, y);
         }
 
-        std::vector<int> indices;
+        std::vector<GLuint> indices;
         for (int i = 1; i < segments - 1; i++) {
             indices.push_back(0);
             indices.push_back(i);
             indices.push_back(i + 1);
         }
 
-        glGenVertexArrays(1, &VAO);
-        glGenBuffers(1, &VBO);
-        glGenBuffers(1, &EBO);
-
-        glBindVertexArray(VAO);
-
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vector3),
-                     vertices.data(), GL_STATIC_DRAW);
-
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), nullptr);
-        glEnableVertexAttribArray(0);
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int),
-                     indices.data(), GL_STATIC_DRAW);
-
-        glBindVertexArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-
-        index_count = indices.size();
+        register_vertices(vertices.data(), vertices.size() * sizeof(Vector3), indices.data(),
+                          indices.size() * sizeof(unsigned int));
     }
 };
 

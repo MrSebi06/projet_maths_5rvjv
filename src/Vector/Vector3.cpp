@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <cmath>
 
-void Vector3::swap(Vector3 &other) {
+void Vector3::swap(Vector3 &other) noexcept {
     std::swap(x, other.x);
     std::swap(y, other.y);
     std::swap(z, other.z);
@@ -25,19 +25,19 @@ Vector3 &Vector3::operator=(const Vector3 &other) {
     return *this;
 }
 
-Vector3 Vector3::operator+(const Vector3 &other) {
+Vector3 Vector3::operator+(const Vector3 &other) const {
     return {x + other.x, y + other.y, z + other.z};
 }
 
-Vector3 Vector3::operator-(const Vector3 &other) {
+Vector3 Vector3::operator-(const Vector3 &other) const {
     return {x - other.x, y - other.y, z - other.z};
 }
 
-Vector3 Vector3::operator*(const float &factor) {
+Vector3 Vector3::operator*(const float &factor) const {
     return {x * factor, y * factor, z * factor};
 }
 
-Vector3 Vector3::operator/(const float &factor) {
+Vector3 Vector3::operator/(const float &factor) const {
     return {x / factor, y / factor, z / factor};
 }
 

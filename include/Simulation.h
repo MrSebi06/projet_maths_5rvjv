@@ -9,25 +9,25 @@
 #include <Particle.h>
 #include <chrono>
 
+#include "ParticleSystem.h"
+
 class Simulation {
-private:
-    std::vector<Particle> particles;
     std::chrono::time_point<std::chrono::high_resolution_clock> last_tick;
+
+    std::vector<ParticleSystem *> particle_systems;
 
 public:
     Vector2 wind;
 
-    Simulation() : particles(std::vector<Particle>()), last_tick(std::chrono::high_resolution_clock::now()), wind() {
-    }
+    Simulation() : last_tick(std::chrono::high_resolution_clock::now()),
+                   particle_systems(std::vector<ParticleSystem *>()),
+                   wind() {}
 
     void update();
+    void draw() const;
 
-    void draw();
-
-    void addParticle(const Vector2 &pos);
-
-    std::vector<Particle> getParticles() {
-        return particles;
+    void register_particle_system(ParticleSystem *p) {
+        particle_systems.push_back(p);
     }
 };
 
