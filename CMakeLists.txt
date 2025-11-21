@@ -30,7 +30,6 @@ add_executable(projet_maths_5rvjv main.cpp
         include/Engine.h
         src/Particles/ParticleEmitter.cpp
         include/Particles/ParticleEmitter.h
-        src/Particles/Emitters/SparkleEmitter.cpp
         include/Random.h
         include/Particles/Emitters/SparkleEmitter.h)
 

@@ -45,5 +45,9 @@ void ParticleEmitter::update(const float dt) {
         }
     }
 
+    last_spawn += dt;
+    if (last_spawn < spawn_gap) return;
+
     Engine::particles.emit(position, calculate_lifetime(), calculate_initial_velocity());
+    last_spawn = 0.0f;
 }

@@ -77,8 +77,6 @@ void ParticleSystem::update(const float dt) {
         e->update(dt);
     }
 
-    std::cout << emitters.size() << std::endl;
-
     for (size_t i = 0; i < particles.size();) {
         particles[i].age += dt;
 
@@ -116,7 +114,7 @@ void ParticleSystem::draw() const {
 
 void ParticleSystem::emit(const Vector2 &pos, float lifetime, const Vector2 &initial_velocity) {
     if (particles.size() < MAX_PARTICLES) {
-        particles.emplace_back(pos, Vector3(1.0, 1.0, 0.0), 1.0, lifetime, initial_velocity);
+        particles.emplace_back(pos, Vector3(1.0, 1.0, 0.0), 10.0, lifetime, initial_velocity);
     }
 }
 

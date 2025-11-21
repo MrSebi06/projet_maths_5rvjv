@@ -15,6 +15,8 @@ class ParticleEmitter {
     bool destroy_after = false;
     float timer = 0.0f;
 
+    float last_spawn = 0.0f;
+
     Vector2 position;
 
 
@@ -37,6 +39,8 @@ public:
 
     float lifetime_min = 0.0f;
     float lifetime_max = 0.0f;
+
+    float spawn_gap = 0.0f;
 
     void start();
     void stop();

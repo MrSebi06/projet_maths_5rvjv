@@ -4,6 +4,7 @@
 #include "init.h"
 
 #include "Engine.h"
+#include "Particles/Emitters/LiquidStreamEmitter.h"
 #include "Particles/Emitters/SparkleEmitter.h"
 
 #define WIDTH 800
@@ -67,7 +68,8 @@ void process_input(GLFWwindow *window) {
 
         const Vector2 pos = screen_to_world(static_cast<float>(xpos), static_cast<float>(ypos));
         auto *emitter = new SparkleEmitter(pos);
-        emitter->play_for(1.0, true);
+        // auto *emitter = new LiquidStreamEmitter(pos);
+        emitter->play_for(0.2, true);
     }
 
     if (glfwGetKey(window, GLFW_KEY_RIGHT))
