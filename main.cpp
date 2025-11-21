@@ -1,10 +1,10 @@
 ﻿#include <chrono>
-#include <cmath>
 #include <random>
 
 #include "init.h"
 
 #include "Engine.h"
+#include "Particles/Emitters/SparkleEmitter.h"
 
 #define WIDTH 800
 #define HEIGHT 600
@@ -61,21 +61,13 @@ void process_input(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+        // TODO: create a single emitter when space is pressed
         double xpos, ypos;
         glfwGetCursorPos(window, &xpos, &ypos);
 
-        static std::random_device rd;
-        static std::mt19937 gen(rd());
-        static std::uniform_real_distribution angle_dist(-1.0f, 1.0f);
-        static std::uniform_real_distribution speed_dist(0.2f, 1.0f);
-        const Vector2 velocity(speed_dist(gen) * angle_dist(gen), speed_dist(gen) * angle_dist(gen));
-
-        static std::uniform_real_distribution lifetime_dist(0.05f, 0.3f);
-
-        Engine::particles.emit(screen_to_world(xpos, ypos),
-                               lifetime_dist(gen),
-                               velocity
-        );
+        const Vector2 pos = screen_to_world(static_cast<float>(xpos), static_cast<float>(ypos));
+        auto *emitter = new SparkleEmitter(pos);
+        emitter->play_for(1.0, true);
     }
 
     if (glfwGetKey(window, GLFW_KEY_RIGHT))
