@@ -2,7 +2,7 @@
 // Created by mihne on 05/11/2025.
 //
 
-#include "ParticleSystem.h"
+#include "Particles/ParticleSystem.h"
 
 void ParticleSystem::setup_geometry() {
     constexpr float radius = 0.01f;
@@ -73,6 +73,12 @@ void ParticleSystem::init() {
 }
 
 void ParticleSystem::update(const float dt) {
+    for (const auto e: emitters) {
+        e->update(dt);
+    }
+
+    std::cout << emitters.size() << std::endl;
+
     for (size_t i = 0; i < particles.size();) {
         particles[i].age += dt;
 

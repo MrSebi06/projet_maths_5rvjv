@@ -9,6 +9,7 @@
 #include <Vector/Vector3.h>
 
 #include "Particle.h"
+#include "ParticleEmitter.h"
 
 
 class ParticleSystem {
@@ -16,6 +17,8 @@ class ParticleSystem {
         Vector2 position;
         Vector3 color;
     };
+
+    std::vector<ParticleEmitter *> emitters;
 
     std::vector<Particle> particles;
     mutable std::vector<ParticleInstance> instance_data;
@@ -36,6 +39,14 @@ public:
 
     void emit(const Vector2 &pos, float lifetime, const Vector2 &initial_velocity);
     void add_force(const Vector2 &force);
+
+    void register_emitter(ParticleEmitter *emitter) {
+        emitters.emplace_back(emitter);
+    }
+
+    void unregister_emitter(ParticleEmitter *emitter) {
+        std::erase(emitters, emitter);
+    }
 };
 
 

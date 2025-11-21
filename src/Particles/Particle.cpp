@@ -2,7 +2,7 @@
 // Created by Sacha TOUTUT on 04/11/2025.
 //
 
-#include "Particle.h"
+#include "Particles/Particle.h"
 
 void Particle::addForce(const Vector2 &force) {
     sumForces = sumForces + force;
