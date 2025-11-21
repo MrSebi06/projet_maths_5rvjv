@@ -5,9 +5,6 @@
 #ifndef PROJET_MATHS_5RVJV_SIMULATION_H
 #define PROJET_MATHS_5RVJV_SIMULATION_H
 
-#include <vector>
-#include <Particle.h>
-
 #include "ParticleSystem.h"
 
 class PhysicsSystem {

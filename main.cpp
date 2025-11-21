@@ -1,4 +1,6 @@
 ﻿#include <chrono>
+#include <cmath>
+#include <random>
 
 #include "init.h"
 
@@ -6,10 +8,14 @@
 
 #define WIDTH 800
 #define HEIGHT 600
+#define ASPECT_RATIO (static_cast<float>(WIDTH) / static_cast<float>(HEIGHT))
 
 void process_input(GLFWwindow *window);
+Vector2 screen_to_world(float mouseX, float mouseY);
 
 int main() {
+    std::srand(std::time({}));
+
     GLFW_config();
     GLFWwindow *window = create_window(WIDTH, HEIGHT);
 
@@ -54,8 +60,23 @@ int main() {
 void process_input(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        Engine::particles.emit();
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+        double xpos, ypos;
+        glfwGetCursorPos(window, &xpos, &ypos);
+
+        static std::random_device rd;
+        static std::mt19937 gen(rd());
+        static std::uniform_real_distribution angle_dist(-1.0f, 1.0f);
+        static std::uniform_real_distribution speed_dist(0.2f, 1.0f);
+        const Vector2 velocity(speed_dist(gen) * angle_dist(gen), speed_dist(gen) * angle_dist(gen));
+
+        static std::uniform_real_distribution lifetime_dist(0.05f, 0.3f);
+
+        Engine::particles.emit(screen_to_world(xpos, ypos),
+                               lifetime_dist(gen),
+                               velocity
+        );
+    }
 
     if (glfwGetKey(window, GLFW_KEY_RIGHT))
         Engine::physics.add_wind(Vector2(0.1f, 0));
@@ -65,4 +86,10 @@ void process_input(GLFWwindow *window) {
         Engine::physics.add_wind(Vector2(0, 0.1f));
     if (glfwGetKey(window, GLFW_KEY_DOWN))
         Engine::physics.add_wind(Vector2(0, -0.1f));
+}
+
+Vector2 screen_to_world(const float mouseX, const float mouseY) {
+    const float x = (2.0f * mouseX / WIDTH - 1.0f) * ASPECT_RATIO;
+    const float y = 1.0f - 2.0f * mouseY / HEIGHT;
+    return {x, y};
 }
