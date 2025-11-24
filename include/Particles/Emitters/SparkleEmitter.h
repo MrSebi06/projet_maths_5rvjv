@@ -4,7 +4,6 @@
 #ifndef SPARKLEEMITTER_H
 #define SPARKLEEMITTER_H
 
-#include "Engine.h"
 #include "Particles/ParticleEmitter.h"
 
 class SparkleEmitter : public ParticleEmitter {

@@ -4,7 +4,6 @@
 #ifndef LIQUIDSTREAMEMITTER_H
 #define LIQUIDSTREAMEMITTER_H
 
-#include "Engine.h"
 #include "Particles/ParticleEmitter.h"
 
 class LiquidStreamEmitter : public ParticleEmitter {
