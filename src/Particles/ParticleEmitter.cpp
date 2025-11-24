@@ -36,8 +36,7 @@ void ParticleEmitter::update(const float dt) {
         timer -= dt;
         if (timer <= 0.0f) {
             if (destroy_after) {
-                Engine::particles.unregister_emitter(this);
-                delete this;
+                Engine::particles.mark_emitter_for_deletion(this);
                 return;
             }
             is_playing = false;

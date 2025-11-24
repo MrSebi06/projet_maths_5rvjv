@@ -74,11 +74,20 @@ void ParticleSystem::setup_instance_buffer() {
 void ParticleSystem::init() {
     setup_geometry();
     setup_instance_buffer();
+    particles.reserve(MAX_PARTICLES);
 }
 
 void ParticleSystem::update(const float dt) {
-    for (const auto e: emitters) {
-        e->update(dt);
+    for (const auto emitter_id: emitters_to_delete) {
+        if (auto it = emitters.find(emitter_id); it != emitters.end()) {
+            delete it->second;
+            emitters.erase(it);
+        }
+    }
+    emitters_to_delete.clear();
+
+    for (const auto emitter: emitters | std::views::values) {
+        emitter->update(dt);
     }
 
     for (size_t i = 0; i < particles.size();) {
@@ -126,4 +135,12 @@ void ParticleSystem::add_force(const Vector2 &force) {
     for (auto &p: particles) {
         p.addForce(force);
     }
+}
+
+void ParticleSystem::register_emitter(ParticleEmitter *emitter) {
+    emitters.insert({reinterpret_cast<size_t>(emitter), emitter});
+}
+
+void ParticleSystem::mark_emitter_for_deletion(ParticleEmitter *emitter) {
+    emitters_to_delete.insert(reinterpret_cast<size_t>(emitter));
 }
