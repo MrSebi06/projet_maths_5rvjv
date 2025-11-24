@@ -29,6 +29,8 @@ int main() {
     GLFW_config();
     GLFWwindow *window = create_window(WIDTH, HEIGHT);
     glfwSetKeyCallback(window, key_callback);
+    glfwMakeContextCurrent(window);
+    glfwSwapInterval(0);
 
     GLAD_init();
 
@@ -69,7 +71,7 @@ int main() {
 
 
 void process_continuous_input(GLFWwindow *window, const float dt) {
-    if (glfwGetKey(window, GLFW_KEY_SPACE)) {
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
         double xpos, ypos;
         glfwGetCursorPos(window, &xpos, &ypos);
 
@@ -86,13 +88,13 @@ void process_continuous_input(GLFWwindow *window, const float dt) {
         emitter->play_for(dt + static_cast<float>(0.1), true);
     }
     if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-        Engine::physics.add_wind(Vector2(0.1f, 0) * dt); // Scale by dt for consistency
+        Engine::physics.add_wind(Vector2(0.1f, 0));
     if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-        Engine::physics.add_wind(Vector2(-0.1f, 0) * dt);
+        Engine::physics.add_wind(Vector2(-0.1f, 0));
     if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-        Engine::physics.add_wind(Vector2(0, 0.1f) * dt);
+        Engine::physics.add_wind(Vector2(0, 0.1f));
     if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-        Engine::physics.add_wind(Vector2(0, -0.1f) * dt);
+        Engine::physics.add_wind(Vector2(0, -0.1f));
 }
 
 void key_callback(GLFWwindow *window, const int key, int scancode, int action, int mods) {
@@ -101,7 +103,6 @@ void key_callback(GLFWwindow *window, const int key, int scancode, int action, i
         current_emitter_type = (current_emitter_type == EmitterType::Sparkle)
                                    ? EmitterType::LiquidStream
                                    : EmitterType::Sparkle;
-        std::cout << "Switching emitter type to " << static_cast<int>(current_emitter_type) << std::endl;
     }
 
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)

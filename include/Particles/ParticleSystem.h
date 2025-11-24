@@ -30,7 +30,7 @@ class ParticleSystem {
     GLuint instanceVBO{};
     GLsizei indexCount{};
 
-    static constexpr int MAX_PARTICLES = 10000;
+    static constexpr int MAX_PARTICLES = 100000;
 
     void setup_geometry();
     void setup_instance_buffer();
