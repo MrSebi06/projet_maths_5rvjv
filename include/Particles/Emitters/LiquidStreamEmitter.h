@@ -17,8 +17,6 @@ public:
         angle_max = 0.3f;
         speed_min = 0.2f;
         speed_max = 0.3f;
-
-        Engine::particles.register_emitter(this);
     }
 };
 

@@ -11,6 +11,7 @@
 #include "Particle.h"
 #include "ParticleEmitter.h"
 
+class ParticleEmitter;
 
 class ParticleSystem {
     struct ParticleInstance {

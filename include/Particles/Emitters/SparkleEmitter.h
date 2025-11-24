@@ -18,8 +18,6 @@ public:
         speed_min = 0.2f;
         speed_max = 1.0f;
         spawn_gap = 0.1f;
-
-        Engine::particles.register_emitter(this);
     }
 };
 

@@ -3,6 +3,10 @@
 //
 
 #include "Particles/ParticleSystem.h"
+#include "Particles/ParticleEmitter.h"
+
+#include <ranges>
+
 
 void ParticleSystem::setup_geometry() {
     constexpr float radius = 0.01f;

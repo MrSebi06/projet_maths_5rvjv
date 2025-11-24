@@ -5,6 +5,7 @@
 #ifndef PROJET_MATHS_5RVJV_PARTICLEEMITTER_H
 #define PROJET_MATHS_5RVJV_PARTICLEEMITTER_H
 
+#include "Engine.h"
 #include "Vector/Vector2.h"
 #include "Vector/Vector3.h"
 
@@ -28,7 +29,9 @@ class ParticleEmitter {
 protected:
     ParticleEmitter(const Vector2 &position, const Vector3 &color)
         : position(position),
-          color(color) {}
+          color(color) {
+        Engine::particles.register_emitter(this);
+    }
 
 public:
     Vector2 base_initial_velocity = Vector2(0.0f, 0.0f);
