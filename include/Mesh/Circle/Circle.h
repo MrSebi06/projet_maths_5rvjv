@@ -38,8 +38,8 @@ public:
             indices.push_back(i + 1);
         }
 
-        register_vertices(vertices.data(), vertices.size() * sizeof(Vector3), indices.data(),
-                          indices.size() * sizeof(unsigned int));
+        setup_geometry(vertices.data(), vertices.size() * sizeof(Vector3), indices.data(),
+                       indices.size() * sizeof(unsigned int));
     }
 };
 
