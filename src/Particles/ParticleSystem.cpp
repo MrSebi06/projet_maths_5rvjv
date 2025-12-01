@@ -71,7 +71,8 @@ void ParticleSystem::setup_instance_buffer() {
 }
 
 
-void ParticleSystem::init() {
+void ParticleSystem::init(const GLuint shader_program_) {
+    shader_program = shader_program_;
     setup_geometry();
     setup_instance_buffer();
     particles.reserve(MAX_PARTICLES);
@@ -120,6 +121,7 @@ void ParticleSystem::draw() const {
                     instance_data.data());
 
     // Draw all particles in ONE call
+    glUseProgram(shader_program);
     glBindVertexArray(VAO);
     glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr,
                             instance_data.size());

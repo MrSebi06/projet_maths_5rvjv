@@ -2,8 +2,8 @@
 
 #include <stdexcept>
 
-void Mesh::register_vertices(const Vector2 *vertices, const GLsizeiptr vertices_size,
-                             const GLuint *indices, const GLsizeiptr indices_size) {
+void Mesh::setup_geometry(const Vector2 *vertices, const GLsizeiptr vertices_size,
+                          const GLuint *indices, const GLsizeiptr indices_size) {
     if (!vertices || !indices || vertices_size == 0 || indices_size == 0) {
         throw std::invalid_argument("Invalid mesh data");
     }
@@ -18,7 +18,7 @@ void Mesh::register_vertices(const Vector2 *vertices, const GLsizeiptr vertices_
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, vertices_size, vertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vector2), nullptr);
     glEnableVertexAttribArray(0);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
@@ -27,11 +27,12 @@ void Mesh::register_vertices(const Vector2 *vertices, const GLsizeiptr vertices_
     glBindVertexArray(0);
 }
 
-void Mesh::draw(const Vector2 *position) const {
+void Mesh::bind() const {
     glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, nullptr);
+}
+
+void Mesh::unbind() const {
     glBindVertexArray(0);
-    glUniform2f(modelLoc, position->getX(), position->getY());
 }
 
 

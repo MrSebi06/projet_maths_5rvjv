@@ -26,6 +26,7 @@ class ParticleSystem {
     std::vector<Particle> particles;
     mutable std::vector<ParticleInstance> instance_data;
 
+    GLuint shader_program = -1;
     GLuint VAO{}, VBO{}, EBO{};
     GLuint instanceVBO{};
     GLsizei indexCount{};
@@ -36,7 +37,7 @@ class ParticleSystem {
     void setup_instance_buffer();
 
 public:
-    void init();
+    void init(GLuint shader);
     void update(float dt);
     void draw() const;
 

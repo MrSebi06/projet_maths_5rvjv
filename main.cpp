@@ -4,6 +4,7 @@
 #include "init.h"
 
 #include "Engine.h"
+#include "GameObject.h"
 #include "Particles/Emitters/LiquidStreamEmitter.h"
 #include "Particles/Emitters/SparkleEmitter.h"
 
@@ -24,6 +25,11 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
 Vector2 screen_to_world(float mouseX, float mouseY);
 void window_size_callback(GLFWwindow *window, int width, int height);
 
+struct Shaders {
+    GLuint particle_shader_program;
+    GLuint base_shader_program;
+};
+
 int main() {
     std::srand(std::time({}));
 
@@ -36,12 +42,16 @@ int main() {
 
     GLAD_init();
 
-    GLuint shader_program = create_shader_program("base.vert", "base.frag");
-    glUseProgram(shader_program);
-    glfwSetWindowUserPointer(window, &shader_program);
-    set_aspect_ratio(WIDTH, HEIGHT, shader_program);
+    GLuint particle_shader_program = create_shader_program("particle.vert", "particle.frag");
+    GLuint base_shader_program = create_shader_program("base.vert", "base.frag");
 
-    Engine::init();
+    Shaders shaders = {particle_shader_program, base_shader_program};
+
+    glfwSetWindowUserPointer(window, &shaders);
+    set_aspect_ratio(WIDTH, HEIGHT, particle_shader_program);
+    set_aspect_ratio(WIDTH, HEIGHT, base_shader_program);
+
+    Engine::init(particle_shader_program);
 
     std::chrono::time_point<std::chrono::high_resolution_clock> last_tick = std::chrono::high_resolution_clock::now();
     while (!glfwWindowShouldClose(window)) {
@@ -57,7 +67,6 @@ int main() {
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-        glUseProgram(shader_program);
 
         Engine::draw();
 
@@ -65,7 +74,7 @@ int main() {
         glfwPollEvents();
     }
 
-    glDeleteProgram(shader_program);
+    glDeleteProgram(particle_shader_program);
 
     glfwTerminate();
 
@@ -101,11 +110,19 @@ void process_continuous_input(GLFWwindow *window, const float dt) {
 }
 
 void key_callback(GLFWwindow *window, const int key, int scancode, int action, int mods) {
+    const Shaders shaders = *static_cast<Shaders *>(glfwGetWindowUserPointer(window));
+
     if (key == GLFW_KEY_TAB && action == GLFW_PRESS) {
         // Switch between liquid and sparkle emitters
         current_emitter_type = (current_emitter_type == EmitterType::Sparkle)
                                    ? EmitterType::LiquidStream
                                    : EmitterType::Sparkle;
+    }
+
+    if (key == GLFW_KEY_C && action == GLFW_PRESS) {
+        const auto circle_mesh = std::make_shared<Circle>(0.1f, 30);
+        const auto player = Engine::create_game_object();
+        player->add_renderer(circle_mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
     }
 
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
@@ -124,7 +141,7 @@ Vector2 screen_to_world(const float mouseX, const float mouseY) {
 
 void window_size_callback(GLFWwindow *window, const int width, const int height) {
     glViewport(0, 0, width, height);
-    const GLuint shader_program = *static_cast<GLuint *>(glfwGetWindowUserPointer(window));
-    set_aspect_ratio(width, height, shader_program);
+    const Shaders shaders = *static_cast<Shaders *>(glfwGetWindowUserPointer(window));
+    set_aspect_ratio(width, height, shaders.particle_shader_program);
+    set_aspect_ratio(width, height, shaders.base_shader_program);
 }
-
