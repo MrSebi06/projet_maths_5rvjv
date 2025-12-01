@@ -23,11 +23,15 @@ add_executable(projet_maths_5rvjv main.cpp
         include/Vector/Vector2.h
         src/Vector/Vector3.cpp
         src/Vector/Vector2.cpp
-        src/Particle.cpp
+        src/Particles/Particle.cpp
         src/PhysicsSystem.cpp
-        src/ParticleSystem.cpp
-        include/ParticleSystem.h
-        include/Engine.h)
+        src/Particles/ParticleSystem.cpp
+        include/Particles/ParticleSystem.h
+        include/Engine.h
+        src/Particles/ParticleEmitter.cpp
+        include/Particles/ParticleEmitter.h
+        include/Random.h
+        include/Particles/Emitters/SparkleEmitter.h)
 
 target_link_libraries(projet_maths_5rvjv ${OPENGL_LIBRARIES} glfw)
 

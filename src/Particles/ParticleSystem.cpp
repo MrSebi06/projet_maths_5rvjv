@@ -2,7 +2,11 @@
 // Created by mihne on 05/11/2025.
 //
 
-#include "ParticleSystem.h"
+#include "Particles/ParticleSystem.h"
+#include "Particles/ParticleEmitter.h"
+
+#include <ranges>
+
 
 void ParticleSystem::setup_geometry() {
     constexpr float radius = 0.01f;
@@ -70,9 +74,22 @@ void ParticleSystem::setup_instance_buffer() {
 void ParticleSystem::init() {
     setup_geometry();
     setup_instance_buffer();
+    particles.reserve(MAX_PARTICLES);
 }
 
 void ParticleSystem::update(const float dt) {
+    for (const auto emitter_id: emitters_to_delete) {
+        if (auto it = emitters.find(emitter_id); it != emitters.end()) {
+            delete it->second;
+            emitters.erase(it);
+        }
+    }
+    emitters_to_delete.clear();
+
+    for (const auto emitter: emitters | std::views::values) {
+        emitter->update(dt);
+    }
+
     for (size_t i = 0; i < particles.size();) {
         particles[i].age += dt;
 
@@ -110,7 +127,7 @@ void ParticleSystem::draw() const {
 
 void ParticleSystem::emit(const Vector2 &pos, float lifetime, const Vector2 &initial_velocity) {
     if (particles.size() < MAX_PARTICLES) {
-        particles.emplace_back(pos, Vector3(1.0, 1.0, 0.0), 1.0, lifetime, initial_velocity);
+        particles.emplace_back(pos, Vector3(1.0, 1.0, 0.0), 10.0, lifetime, initial_velocity);
     }
 }
 
@@ -118,4 +135,12 @@ void ParticleSystem::add_force(const Vector2 &force) {
     for (auto &p: particles) {
         p.addForce(force);
     }
+}
+
+void ParticleSystem::register_emitter(ParticleEmitter *emitter) {
+    emitters.insert({reinterpret_cast<size_t>(emitter), emitter});
+}
+
+void ParticleSystem::mark_emitter_for_deletion(ParticleEmitter *emitter) {
+    emitters_to_delete.insert(reinterpret_cast<size_t>(emitter));
 }

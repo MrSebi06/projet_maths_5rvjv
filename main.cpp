@@ -1,16 +1,26 @@
 ﻿#include <chrono>
-#include <cmath>
 #include <random>
 
 #include "init.h"
 
 #include "Engine.h"
+#include "Particles/Emitters/LiquidStreamEmitter.h"
+#include "Particles/Emitters/SparkleEmitter.h"
 
 #define WIDTH 800
 #define HEIGHT 600
 #define ASPECT_RATIO (static_cast<float>(WIDTH) / static_cast<float>(HEIGHT))
 
-void process_input(GLFWwindow *window);
+
+enum class EmitterType {
+    Sparkle,
+    LiquidStream
+};
+
+auto current_emitter_type = EmitterType::Sparkle;
+
+void process_continuous_input(GLFWwindow *window, const float dt);
+void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
 Vector2 screen_to_world(float mouseX, float mouseY);
 
 int main() {
@@ -18,6 +28,9 @@ int main() {
 
     GLFW_config();
     GLFWwindow *window = create_window(WIDTH, HEIGHT);
+    glfwSetKeyCallback(window, key_callback);
+    glfwMakeContextCurrent(window);
+    glfwSwapInterval(0);
 
     GLAD_init();
 
@@ -29,8 +42,6 @@ int main() {
 
     std::chrono::time_point<std::chrono::high_resolution_clock> last_tick = std::chrono::high_resolution_clock::now();
     while (!glfwWindowShouldClose(window)) {
-        process_input(window);
-
         // Calculate delta time using system clock
         const auto current_time = std::chrono::high_resolution_clock::now();
         const auto elapsed = current_time - last_tick;
@@ -38,6 +49,7 @@ int main() {
         const float dt = elapsed_ms.count() / 1000000.0f;
         last_tick = current_time;
 
+        process_continuous_input(window, dt);
         Engine::update(dt);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -57,35 +69,44 @@ int main() {
     return 0;
 }
 
-void process_input(GLFWwindow *window) {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
+
+void process_continuous_input(GLFWwindow *window, const float dt) {
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
         double xpos, ypos;
         glfwGetCursorPos(window, &xpos, &ypos);
 
-        static std::random_device rd;
-        static std::mt19937 gen(rd());
-        static std::uniform_real_distribution angle_dist(-1.0f, 1.0f);
-        static std::uniform_real_distribution speed_dist(0.2f, 1.0f);
-        const Vector2 velocity(speed_dist(gen) * angle_dist(gen), speed_dist(gen) * angle_dist(gen));
+        const Vector2 pos = screen_to_world(static_cast<float>(xpos), static_cast<float>(ypos));
+        ParticleEmitter *emitter = nullptr;
+        switch (current_emitter_type) {
+            case EmitterType::Sparkle:
+                emitter = new SparkleEmitter(pos);
+                break;
+            case EmitterType::LiquidStream:
+                emitter = new LiquidStreamEmitter(pos);
+                break;
+        }
+        emitter->play_for(dt + static_cast<float>(0.1), true);
+    }
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+        Engine::physics.add_wind(Vector2(0.1f, 0));
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+        Engine::physics.add_wind(Vector2(-0.1f, 0));
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+        Engine::physics.add_wind(Vector2(0, 0.1f));
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+        Engine::physics.add_wind(Vector2(0, -0.1f));
+}
 
-        static std::uniform_real_distribution lifetime_dist(0.05f, 0.3f);
-
-        Engine::particles.emit(screen_to_world(xpos, ypos),
-                               lifetime_dist(gen),
-                               velocity
-        );
+void key_callback(GLFWwindow *window, const int key, int scancode, int action, int mods) {
+    if (key == GLFW_KEY_TAB && action == GLFW_PRESS) {
+        // Switch between liquid and sparkle emitters
+        current_emitter_type = (current_emitter_type == EmitterType::Sparkle)
+                                   ? EmitterType::LiquidStream
+                                   : EmitterType::Sparkle;
     }
 
-    if (glfwGetKey(window, GLFW_KEY_RIGHT))
-        Engine::physics.add_wind(Vector2(0.1f, 0));
-    if (glfwGetKey(window, GLFW_KEY_LEFT))
-        Engine::physics.add_wind(Vector2(-0.1f, 0));
-    if (glfwGetKey(window, GLFW_KEY_UP))
-        Engine::physics.add_wind(Vector2(0, 0.1f));
-    if (glfwGetKey(window, GLFW_KEY_DOWN))
-        Engine::physics.add_wind(Vector2(0, -0.1f));
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
 }
 
 Vector2 screen_to_world(const float mouseX, const float mouseY) {

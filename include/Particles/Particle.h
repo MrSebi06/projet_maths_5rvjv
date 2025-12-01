@@ -5,8 +5,8 @@
 #ifndef PROJET_MATHS_5RVJV_PARTICLE_H
 #define PROJET_MATHS_5RVJV_PARTICLE_H
 
-#include "Vector/Vector2.h"
-#include "Mesh/Circle/Circle.h"
+#include "../Vector/Vector2.h"
+#include "../Mesh/Circle/Circle.h"
 
 struct Particle {
     Vector2 sumForces;
