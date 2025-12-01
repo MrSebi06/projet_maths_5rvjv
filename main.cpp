@@ -22,21 +22,24 @@ auto current_emitter_type = EmitterType::Sparkle;
 void process_continuous_input(GLFWwindow *window, const float dt);
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
 Vector2 screen_to_world(float mouseX, float mouseY);
+void window_size_callback(GLFWwindow *window, int width, int height);
 
 int main() {
     std::srand(std::time({}));
 
     GLFW_config();
     GLFWwindow *window = create_window(WIDTH, HEIGHT);
+    glfwSetFramebufferSizeCallback(window, window_size_callback);
     glfwSetKeyCallback(window, key_callback);
     glfwMakeContextCurrent(window);
     glfwSwapInterval(0);
 
     GLAD_init();
 
-    const GLuint shader_program = create_shader_program("base.vert", "base.frag");
+    GLuint shader_program = create_shader_program("base.vert", "base.frag");
     glUseProgram(shader_program);
-    setup_aspect_ratio(WIDTH, HEIGHT, shader_program);
+    glfwSetWindowUserPointer(window, &shader_program);
+    set_aspect_ratio(WIDTH, HEIGHT, shader_program);
 
     Engine::init();
 
@@ -110,7 +113,18 @@ void key_callback(GLFWwindow *window, const int key, int scancode, int action, i
 }
 
 Vector2 screen_to_world(const float mouseX, const float mouseY) {
-    const float x = (2.0f * mouseX / WIDTH - 1.0f) * ASPECT_RATIO;
-    const float y = 1.0f - 2.0f * mouseY / HEIGHT;
+    int width, height;
+    glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
+
+    const float aspect = static_cast<float>(width) / static_cast<float>(height);
+    const float x = (2.0f * mouseX / width - 1.0f) * aspect;
+    const float y = 1.0f - 2.0f * mouseY / height;
     return {x, y};
 }
+
+void window_size_callback(GLFWwindow *window, const int width, const int height) {
+    glViewport(0, 0, width, height);
+    const GLuint shader_program = *static_cast<GLuint *>(glfwGetWindowUserPointer(window));
+    set_aspect_ratio(width, height, shader_program);
+}
+

@@ -15,7 +15,4 @@ void GLAD_init();
 
 GLuint create_shader_program(const std::string &vert, const std::string &frag);
 
-void setup_aspect_ratio(int width, int height, GLuint shader_program);
-
-
 #endif //PROJET_MATHS_INIT_H
