@@ -35,7 +35,7 @@ Vector2 Vector2::operator*(const float &factor) {
     return {x * factor, y * factor};
 }
 
-Vector2 Vector2::operator/(const float &factor) {
+Vector2 Vector2::operator/(const float &factor) const {
     return {x / factor, y / factor};
 }
 
@@ -84,6 +84,10 @@ Vector2 Vector2::rotation(const float &angle) const {
 
 Vector2 Vector2::perpendicular() const {
     return {-y, x};
+}
+
+Vector2 Vector2::normalized() const {
+    return *this / magnitude();
 }
 
 std::ostream &operator<<(std::ostream &os, const Vector2 &v) {
