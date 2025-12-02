@@ -27,7 +27,7 @@ void Rigidbody2D::addTorque(float torque)
 
 void Rigidbody2D::integrate(float dt) {
     // Acceleration is impacted by current forces...
-    acceleration = sumForces / mass;
+    acceleration = sumForces * invMass;
     angularAcceleration = 0.0f; // ???
 
     // ...velocity is impacted by acceleration...
