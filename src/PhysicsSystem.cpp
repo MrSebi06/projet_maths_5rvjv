@@ -23,8 +23,7 @@ void PhysicsSystem::update(const float dt) const {
     // After the basic physics update, resolve collisions
     for (int i = 0; i < bodies.size(); ++i) {
         Rigidbody2D *currentBody = bodies[i];
-
-        // TODO: Implement broad detection first to optimize
+        
         for (int j = i + 1; j < bodies.size(); ++j) {
             CollisionDetection::CollisionInfo info;
             if (CollisionDetection::isColliding(currentBody, bodies[j], info))

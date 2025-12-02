@@ -43,6 +43,9 @@ namespace CollisionDetection {
     }
 
     inline bool isColliding(Rigidbody2D *a, Rigidbody2D *b, CollisionInfo &info) {
+        if ((b->transform->getPosition()-a->transform->getPosition()).magnitude() > a->shape->broadRadius + b->shape->broadRadius) {
+            return false;
+        }
         ShapeType aType = a->shape->GetType();
         ShapeType bType = b->shape->GetType();
         if (aType == CIRCLE && bType == CIRCLE)

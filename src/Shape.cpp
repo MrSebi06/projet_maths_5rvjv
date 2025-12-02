@@ -15,6 +15,8 @@ BoxShape::BoxShape(float width, float height)
     vertices[0] = Vector2(width / 2, -height / 2);
     vertices[0] = Vector2(width / 2, height / 2);
     vertices[0] = Vector2(-width / 2, height / 2);
+
+    broadRadius = vertices[0].magnitude();
 }
 ShapeType BoxShape::GetType() const { return BOX; }
 float BoxShape::getMomentOfInertia() const { return (width * width + height * height) / 12; }
