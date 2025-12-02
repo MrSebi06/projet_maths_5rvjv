@@ -43,6 +43,7 @@ namespace CollisionDetection {
     }
 
     inline bool isColliding(Rigidbody2D *a, Rigidbody2D *b, CollisionInfo &info) {
+        if (a->mass == 0 && b->mass == 0) return false;
         if ((b->transform->getPosition()-a->transform->getPosition()).magnitude() > a->shape->broadRadius + b->shape->broadRadius) {
             return false;
         }
