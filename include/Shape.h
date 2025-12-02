@@ -44,6 +44,7 @@ struct PolygonShape: public Shape {
     virtual ~PolygonShape() = default;
     ShapeType GetType() const override;
     float getMomentOfInertia() const override;
+    std::vector<Vector2> getTranslatedVertices(const Vector2& translation) const;
 };
 
 struct BoxShape: public PolygonShape {

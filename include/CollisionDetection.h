@@ -42,6 +42,80 @@ namespace CollisionDetection {
         return true;
     }
 
+    inline float minSeparation(const std::vector<Vector2>& aVertices, const std::vector<Vector2>& bVertices, Vector2& axis, Vector2& point)
+    {
+        float separation = std::numeric_limits<float>::lowest();
+        auto aPolyShapeSize = aVertices.size();
+        auto bPolyShapeSize = bVertices.size();
+        for (int i = 0; i < aPolyShapeSize; ++i)
+        {
+            // va <=> Vertex A
+            Vector2 va = aVertices[i];
+            Vector2 edge = aVertices[(i + 1) % aPolyShapeSize] - va;
+            Vector2 normal = edge.perpendicular();
+
+            float minSep = std::numeric_limits<float>::max();
+            Vector2 minVertex;
+            for (int j = 0; j < bPolyShapeSize; ++j)
+            {
+                auto vb = bVertices[j];
+
+                float proj = (vb - va).dot(normal);
+                if (proj < minSep)
+                {
+                    minSep = proj;
+                    minVertex = vb;
+                }
+            }
+
+            if (minSep > separation) {
+                separation = minSep;
+                axis = edge;
+                point = minVertex;
+            }
+        }
+
+        return separation;
+    }
+
+    inline bool isCollidingPolygonPolygon(Rigidbody2D *a, Rigidbody2D *b, CollisionInfo &info)
+    {
+        PolygonShape* aPolyShape = (PolygonShape*) a->shape;
+        PolygonShape* bPolyShape = (PolygonShape*) b->shape;
+
+        auto aTranslatedVertices = aPolyShape->getTranslatedVertices(a->transform->getPosition());
+        auto bTranslatedVertices = bPolyShape->getTranslatedVertices(b->transform->getPosition());
+
+        // Cut algorithm short for time if not needed
+        Vector2 aAxis, aPoint;
+        auto abSeparation = minSeparation(aTranslatedVertices, bTranslatedVertices, aAxis, aPoint);
+        if (abSeparation > 0)
+            return false;
+
+        Vector2 bAxis, bPoint;
+        auto baSeparation = minSeparation(bTranslatedVertices, aTranslatedVertices, bAxis, bPoint);
+        if (baSeparation > 0)
+            return false;
+
+        info.a = a;
+        info.b = b;
+
+        if (abSeparation > baSeparation)
+        {
+            info.depth = -abSeparation;
+            info.normal = aAxis.perpendicular();
+            info.start = aPoint;
+            info.end = aPoint + info.normal * info.depth;
+        } else {
+            info.depth = -baSeparation;
+            info.normal = bAxis.perpendicular() * -1;
+            info.start = bPoint - info.normal * info.depth;
+            info.end = bPoint;
+        }
+
+        return true;
+    }
+
     inline bool isColliding(Rigidbody2D *a, Rigidbody2D *b, CollisionInfo &info) {
         if (a->mass == 0 && b->mass == 0) return false;
         if ((b->transform->getPosition()-a->transform->getPosition()).magnitude() > a->shape->broadRadius + b->shape->broadRadius) {
@@ -52,11 +126,14 @@ namespace CollisionDetection {
         if (aType == CIRCLE && bType == CIRCLE)
             return isCollidingCircleCircle(a, b, info);
 
+        if (aType == POLYGON && bType == POLYGON)
+            return isCollidingPolygonPolygon(a, b, info);
+
         // Default failsafe for unimplemented collisions
         return false;
     }
 
-    inline void ResolveCollision(CollisionInfo &info) {
+    inline void ResolveCollision(const CollisionInfo &info) {
         Rigidbody2D *a = info.a;
         Rigidbody2D *b = info.b;
 
