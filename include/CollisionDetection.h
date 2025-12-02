@@ -1,0 +1,72 @@
+﻿//
+// Created by Sacha TOUTUT on 02/12/2025.
+//
+
+#ifndef PROJET_MATHS_5RVJV_COLLISIONDETECTION_H
+#define PROJET_MATHS_5RVJV_COLLISIONDETECTION_H
+
+#include "Rigidbody.h"
+
+namespace CollisionDetection {
+    struct CollisionInfo
+    {
+        Rigidbody2D* a;
+        Rigidbody2D* b;
+        Vector2 start, end;
+
+        Vector2 normal;
+        float depth;
+    };
+
+    inline bool isCollidingCircleCircle(Rigidbody2D* a, Rigidbody2D* b, CollisionInfo& info)
+    {
+        CircleShape* aCircleShape = (CircleShape*) a->shape;
+        CircleShape* bCircleShape = (CircleShape*) b->shape;
+
+        Vector2 aPos = a->gameObject->position;
+        Vector2 bPos = b->gameObject->position;
+
+        const Vector2 ab = bPos - aPos;
+        const float abMag = ab.magnitude();
+
+        const float radiusSum = aCircleShape->radius + bCircleShape->radius;
+        bool isColliding = abMag * abMag <= radiusSum * radiusSum;
+
+        if (!isColliding) return false;
+        info.a = a;
+        info.b = b;
+
+        info.normal = ab.normalized();
+        info.start = bPos - info.normal * bCircleShape->radius;
+        info.end = aPos + info.normal* aCircleShape->radius;
+        info.depth = (info.end - info.start).magnitude();
+
+        return true;
+    }
+
+    inline bool isColliding(Rigidbody2D* a, Rigidbody2D* b, CollisionInfo& info)
+    {
+        ShapeType aType = a->shape->GetType();
+        ShapeType bType = b->shape->GetType();
+        if (aType == CIRCLE && bType == CIRCLE)
+            return isCollidingCircleCircle(a, b, info);
+
+        // Default failsafe for unimplemented collisions
+        return false;
+    }
+
+    inline void ResolveCollision(CollisionInfo& info)
+    {
+        Rigidbody2D* a = info.a;
+        Rigidbody2D* b = info.b;
+
+        float d = info.depth / (a->invMass + b->invMass);
+        float da = d * a->invMass;
+        float db = d * b->invMass;
+
+        a->gameObject->position -= info.normal * da;
+        b->gameObject->position += info.normal * db;
+    }
+}
+
+#endif //PROJET_MATHS_5RVJV_COLLISIONDETECTION_H

@@ -8,24 +8,23 @@
 #include "Vector/Vector2.h"
 #include "Shape.h"
 #include "Mesh/Mesh.h"
+#include "GameObject.h"
 
 class Rigidbody2D {
-private:
 public:
+    GameObject* gameObject;
+    Shape* shape;
+
     float mass, invMass;
-    Vector2 position, velocity, acceleration;
+    Vector2 velocity, acceleration;
     Vector2 sumForces;
 
     float I, invI;
     float rotation, angularVelocity, angularAcceleration;
     float sumTorque;
 
-    Shape* shape;
-    Mesh* mesh;
 
-    Rigidbody2D(const float& mass, Shape* shape, Mesh* mesh, const Vector2& position, const float& rotation);
-
-    void draw();
+    Rigidbody2D(GameObject* gameObject, const float& mass, Shape* shape, const float& rotation);
 
     void resetForces();
     void addForce(Vector2 force);

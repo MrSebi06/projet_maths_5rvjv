@@ -39,7 +39,8 @@ add_executable(projet_maths_5rvjv main.cpp
         src/Mesh/MeshRenderer.cpp
         include/Mesh/MeshRenderer.h
         src/GameObject.cpp
-        include/GameObject.h)
+        include/GameObject.h
+        include/CollisionDetection.h)
 
 target_link_libraries(projet_maths_5rvjv ${OPENGL_LIBRARIES} glfw)
 
