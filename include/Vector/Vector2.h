@@ -30,6 +30,7 @@ struct Vector2 {
     Vector2 &operator/=(const float &other);
 
     float magnitude() const;
+    float magnitude_squared() const;
     float dot(const Vector2 &other) const;
     float cross(const Vector2 &other) const;
     Vector2 rotation(const float &angle) const;

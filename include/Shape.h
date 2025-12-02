@@ -17,26 +17,27 @@ struct Shape {
     virtual float getMomentOfInertia() const = 0;
 };
 
-struct CircleShape: public Shape {
+struct CircleShape : public Shape {
     float radius;
 
     explicit CircleShape(const float radius) : radius(radius) {};
     virtual ~CircleShape();
     ShapeType GetType() const override;
+
     float getMomentOfInertia() const override;
 };
 
-struct PolygonShape: public Shape {
+struct PolygonShape : public Shape {
     std::vector<Vector2> vertices;
 
     PolygonShape() = default;
-    explicit PolygonShape(const std::vector<Vector2>& vertices) : vertices(vertices) {};
+    explicit PolygonShape(const std::vector<Vector2> &vertices) : vertices(vertices) {};
     virtual ~PolygonShape() = default;
     ShapeType GetType() const override;
     float getMomentOfInertia() const override;
 };
 
-struct BoxShape: public PolygonShape {
+struct BoxShape : public PolygonShape {
     float width, height;
     BoxShape(float width, float height);
     virtual ~BoxShape() = default;

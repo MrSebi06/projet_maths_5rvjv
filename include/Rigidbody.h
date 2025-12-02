@@ -16,6 +16,7 @@ public:
     Shape *shape;
 
     float restitution;
+    float friction;
 
     float mass, invMass;
     Vector2 velocity, acceleration;
@@ -26,10 +27,10 @@ public:
     float sumTorque;
 
 
-    Rigidbody2D(Transform *transform, const float &mass, const float &restitution, Shape *shape);
+    Rigidbody2D(Transform *transform, const float &mass, const float &restitution, float friction, Shape *shape);
 
     void resetForces();
-    void impulse(const Vector2 &impulse);
+    void impulse(const Vector2 &impulse, const Vector2 &rotation = {0.0f, 0.0f});
     void addForce(const Vector2 &force);
     void addTorque(float torque);
 

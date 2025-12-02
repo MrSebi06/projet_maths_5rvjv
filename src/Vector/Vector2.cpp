@@ -67,6 +67,10 @@ float Vector2::magnitude() const {
     return std::sqrt(x * x + y * y);
 }
 
+float Vector2::magnitude_squared() const {
+    return x * x + y * y;
+}
+
 float Vector2::dot(const Vector2 &other) const {
     return x * other.x + y * other.y;
 }

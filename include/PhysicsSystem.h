@@ -19,7 +19,8 @@ public:
     PhysicsSystem() = default;
 
     void update(float dt) const;
-    void registerRigidBody(GameObject *gameObject, const float &mass, const float &restitution, Shape *shape);
+    void registerRigidBody(GameObject *gameObject, const float &mass, const float &restitution, float friction,
+                           Shape *shape);
 
     void add_wind(const Vector2 &wind_);
 };

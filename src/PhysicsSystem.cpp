@@ -12,8 +12,7 @@ void PhysicsSystem::update(const float dt) const {
     Engine::particles.add_force(wind);
     Engine::particles.add_force(GRAVITY);
 
-    for (int i = 0; i < bodies.size(); ++i) {
-        Rigidbody2D *body = bodies[i];
+    for (const auto body: bodies) {
         body->addForce(wind);
         body->addForce(GRAVITY);
 
@@ -27,15 +26,16 @@ void PhysicsSystem::update(const float dt) const {
         // TODO: Implement broad detection first to optimize
         for (int j = i + 1; j < bodies.size(); ++j) {
             CollisionDetection::CollisionInfo info;
-            if (CollisionDetection::isColliding(currentBody, bodies[j], info))
-                CollisionDetection::ResolveCollision(info);
+            if (CollisionDetection::is_colliding(currentBody, bodies[j], info))
+                CollisionDetection::resolve_collision(info);
         }
     }
 }
 
 void PhysicsSystem::registerRigidBody(GameObject *gameObject, const float &mass, const float &restitution,
+                                      const float friction,
                                       Shape *shape) {
-    bodies.push_back(gameObject->add_rigidbody(mass, restitution, shape));
+    bodies.push_back(gameObject->add_rigidbody(mass, restitution, friction, shape));
 }
 
 void PhysicsSystem::add_wind(const Vector2 &wind_) {

@@ -1,16 +1,17 @@
 ﻿#include "Rigidbody.h"
 
-Rigidbody2D::Rigidbody2D(Transform *transform, const float &mass, const float &restitution, Shape *shape)
+Rigidbody2D::Rigidbody2D(Transform *transform, const float &mass, const float &restitution, const float friction,
+                         Shape *shape)
     : transform(transform),
       shape(shape),
-      restitution(restitution),
+      restitution(restitution), friction(friction),
       mass(mass),
       angularVelocity(0),
       angularAcceleration(0), sumTorque(0) {
     // Mass == 0 means a static object
     invMass = mass == 0.0f ? 0.0f : 1 / mass;
     I = mass * shape->getMomentOfInertia();
-    invI = 1 / I;
+    invI = I == 0.0f ? 0.0f : 1 / I;
 }
 
 void Rigidbody2D::resetForces() {
@@ -18,9 +19,11 @@ void Rigidbody2D::resetForces() {
     sumTorque = 0.0f;
 }
 
-void Rigidbody2D::impulse(const Vector2 &impulse) {
+void Rigidbody2D::impulse(const Vector2 &impulse, const Vector2 &rotation
+) {
     if (invMass == 0.0f) return;
     velocity += impulse * invMass;
+    angularVelocity += rotation.cross(impulse) * invI;
 }
 
 void Rigidbody2D::addForce(const Vector2 &force) {
@@ -32,9 +35,11 @@ void Rigidbody2D::addTorque(const float torque) {
 }
 
 void Rigidbody2D::integrate(const float dt) {
+    if (mass == 0.0f) return;
+
     // Acceleration is impacted by current forces...
     acceleration = sumForces * invMass;
-    angularAcceleration = 0.0f; // ???
+    angularAcceleration = sumTorque * invI;
 
     // ...velocity is impacted by acceleration...
     velocity += acceleration * dt;

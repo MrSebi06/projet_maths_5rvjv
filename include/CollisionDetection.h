@@ -17,20 +17,17 @@ namespace CollisionDetection {
         float depth;
     };
 
-    inline bool isCollidingCircleCircle(Rigidbody2D *a, Rigidbody2D *b, CollisionInfo &info) {
-        const auto *aCircleShape = dynamic_cast<CircleShape *>(a->shape);
+    inline bool is_colliding_circle_circle(Rigidbody2D *a, Rigidbody2D *b, CollisionInfo &info) {
+        const auto aCircleShape = dynamic_cast<CircleShape *>(a->shape);
         const auto bCircleShape = dynamic_cast<CircleShape *>(b->shape);
 
         const Vector2 aPos = a->transform->getPosition();
         const Vector2 bPos = b->transform->getPosition();
 
         const Vector2 ab = bPos - aPos;
-        const float abMag = ab.magnitude();
-
         const float radiusSum = aCircleShape->radius + bCircleShape->radius;
-        bool isColliding = abMag * abMag <= radiusSum * radiusSum;
+        if (!(ab.magnitude_squared() <= radiusSum * radiusSum)) return false;
 
-        if (!isColliding) return false;
         info.a = a;
         info.b = b;
 
@@ -42,38 +39,59 @@ namespace CollisionDetection {
         return true;
     }
 
-    inline bool isColliding(Rigidbody2D *a, Rigidbody2D *b, CollisionInfo &info) {
-        ShapeType aType = a->shape->GetType();
-        ShapeType bType = b->shape->GetType();
+    inline bool is_colliding(Rigidbody2D *a, Rigidbody2D *b, CollisionInfo &info) {
+        const ShapeType aType = a->shape->GetType();
+        const ShapeType bType = b->shape->GetType();
         if (aType == CIRCLE && bType == CIRCLE)
-            return isCollidingCircleCircle(a, b, info);
+            return is_colliding_circle_circle(a, b, info);
 
         // Default failsafe for unimplemented collisions
         return false;
     }
 
-    inline void ResolveCollision(CollisionInfo &info) {
+    inline void resolve_collision(const CollisionInfo &info) {
         Rigidbody2D *a = info.a;
         Rigidbody2D *b = info.b;
 
         // Penetration algorithm (Moves the objects on each other's bounds)
-        float d = info.depth / (a->invMass + b->invMass);
-        float da = d * a->invMass;
-        float db = d * b->invMass;
+        const float d = info.depth / (a->invMass + b->invMass);
+        const float da = d * a->invMass;
+        const float db = d * b->invMass;
 
         a->transform->addPosition(info.normal * -da);
         b->transform->addPosition(info.normal * db);
 
         // Impulse algorithm (Changes their velocities to move away)
-        float elasticity = std::min(a->restitution, b->restitution);
-        Vector2 velDiff = a->velocity - b->velocity;
+        const Vector2 ra = info.end - a->transform->getPosition();
+        const Vector2 rb = info.start - b->transform->getPosition();
 
-        float impulseMag = -(1 + elasticity) * velDiff.dot(info.normal) / (a->invMass + b->invMass);
-        Vector2 impulseDir = info.normal;
+        const Vector2 va = a->velocity + Vector2(-(a->angularVelocity) * ra.getY(), a->angularVelocity * ra.getX());
+        const Vector2 vb = b->velocity + Vector2(-(b->angularVelocity) * rb.getY(), b->angularVelocity * rb.getX());
 
-        Vector2 impulse = impulseDir * impulseMag;
-        a->impulse(impulse);
-        b->impulse(impulse * -1);
+        const Vector2 vrel = va - vb;
+        const float vrel_dot_normal = vrel.dot(info.normal);
+        const float elasticity = std::min(a->friction, b->friction);
+        const float impulseMagN = -(1 + elasticity) * vrel_dot_normal /
+                                  ((a->invMass + b->invMass)
+                                   + ra.cross(info.normal) * ra.cross(info.normal) * a->invI
+                                   + rb.cross(info.normal) * rb.cross(info.normal) * b->invI);
+        const Vector2 impulseDirN = info.normal;
+        const Vector2 impulseN = impulseDirN * impulseMagN;
+
+        const Vector2 tangent = info.normal.perpendicular();
+        const float vrel_dot_tangent = vrel.dot(tangent);
+        const float friction = std::min(a->restitution, b->restitution);
+        const float impulseMagT = friction * -(1 + elasticity) * vrel_dot_tangent /
+                                  ((a->invMass + b->invMass)
+                                   + ra.cross(tangent) * ra.cross(tangent) * a->invI
+                                   + rb.cross(tangent) * rb.cross(tangent) * b->invI);
+        const Vector2 impulseDirT = tangent;
+        const Vector2 impulseT = impulseDirT * impulseMagT;
+
+        const Vector2 impulse = impulseN + impulseT;
+
+        a->impulse(impulse, ra);
+        b->impulse(impulse * -1, rb);
     }
 }
 
