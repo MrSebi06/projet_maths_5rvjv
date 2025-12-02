@@ -3,9 +3,20 @@
 CircleShape::~CircleShape() noexcept = default;
 ShapeType CircleShape::GetType() const { return CIRCLE; }
 float CircleShape::getMomentOfInertia() const { return radius * radius / 2; }
+float CircleShape::getBroadRadius() { return radius; }
 
 ShapeType PolygonShape::GetType() const { return POLYGON; }
 float PolygonShape::getMomentOfInertia() const { return 0.0f; }
+float PolygonShape::getBroadRadius() {
+    float maxDist = 0;
+    for (auto vertice: vertices) {
+        float dist = vertice.magnitude();
+        if (dist>maxDist) {
+            maxDist = dist;
+        }
+    }
+    return maxDist;
+}
 
 BoxShape::BoxShape(float width, float height)
 {
@@ -18,3 +29,4 @@ BoxShape::BoxShape(float width, float height)
 }
 ShapeType BoxShape::GetType() const { return BOX; }
 float BoxShape::getMomentOfInertia() const { return (width * width + height * height) / 12; }
+float BoxShape::getBroadRadius() { return vertices[0].magnitude(); }

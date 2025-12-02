@@ -15,6 +15,7 @@ struct Shape {
     virtual ~Shape() = default;
     virtual ShapeType GetType() const = 0;
     virtual float getMomentOfInertia() const = 0;
+    virtual float getBroadRadius() = 0;
 };
 
 struct CircleShape: public Shape {
@@ -24,6 +25,7 @@ struct CircleShape: public Shape {
     virtual ~CircleShape();
     ShapeType GetType() const override;
     float getMomentOfInertia() const override;
+    float getBroadRadius() override;
 };
 
 struct PolygonShape: public Shape {
@@ -34,6 +36,7 @@ struct PolygonShape: public Shape {
     virtual ~PolygonShape() = default;
     ShapeType GetType() const override;
     float getMomentOfInertia() const override;
+    float getBroadRadius() override;
 };
 
 struct BoxShape: public PolygonShape {
@@ -42,6 +45,7 @@ struct BoxShape: public PolygonShape {
     virtual ~BoxShape() = default;
     ShapeType GetType() const override;
     float getMomentOfInertia() const override;
+    float getBroadRadius() override;
 };
 
 #endif //PROJET_MATHS_5RVJV_SHAPE_H
