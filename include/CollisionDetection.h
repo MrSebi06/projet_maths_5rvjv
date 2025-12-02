@@ -17,6 +17,39 @@ namespace CollisionDetection {
         float depth;
     };
 
+    inline float minSeparation(const std::vector<Vector2> &aVertices, const std::vector<Vector2> &bVertices,
+                               Vector2 &axis, Vector2 &point) {
+        float separation = std::numeric_limits<float>::lowest();
+        auto aPolyShapeSize = aVertices.size();
+        auto bPolyShapeSize = bVertices.size();
+        for (int i = 0; i < aPolyShapeSize; ++i) {
+            // va <=> Vertex A
+            Vector2 va = aVertices[i];
+            Vector2 edge = aVertices[(i + 1) % aPolyShapeSize] - va;
+            Vector2 normal = edge.perpendicular();
+
+            float minSep = std::numeric_limits<float>::max();
+            Vector2 minVertex;
+            for (int j = 0; j < bPolyShapeSize; ++j) {
+                auto vb = bVertices[j];
+
+                float proj = (vb - va).dot(normal);
+                if (proj < minSep) {
+                    minSep = proj;
+                    minVertex = vb;
+                }
+            }
+
+            if (minSep > separation) {
+                separation = minSep;
+                axis = edge;
+                point = minVertex;
+            }
+        }
+
+        return separation;
+    }
+
     inline bool is_colliding_circle_circle(Rigidbody2D *a, Rigidbody2D *b, CollisionInfo &info) {
         const auto aCircleShape = dynamic_cast<CircleShape *>(a->shape);
         const auto bCircleShape = dynamic_cast<CircleShape *>(b->shape);
@@ -39,10 +72,9 @@ namespace CollisionDetection {
         return true;
     }
 
-    inline bool isCollidingPolygonPolygon(Rigidbody2D *a, Rigidbody2D *b, CollisionInfo &info)
-    {
-        PolygonShape* aPolyShape = (PolygonShape*) a->shape;
-        PolygonShape* bPolyShape = (PolygonShape*) b->shape;
+    inline bool isCollidingPolygonPolygon(Rigidbody2D *a, Rigidbody2D *b, CollisionInfo &info) {
+        PolygonShape *aPolyShape = (PolygonShape *) a->shape;
+        PolygonShape *bPolyShape = (PolygonShape *) b->shape;
 
         auto aTranslatedVertices = aPolyShape->getTranslatedVertices(a->transform->getPosition());
         auto bTranslatedVertices = bPolyShape->getTranslatedVertices(b->transform->getPosition());
@@ -61,8 +93,7 @@ namespace CollisionDetection {
         info.a = a;
         info.b = b;
 
-        if (abSeparation > baSeparation)
-        {
+        if (abSeparation > baSeparation) {
             info.depth = -abSeparation;
             info.normal = aAxis.perpendicular();
             info.start = aPoint;
@@ -89,41 +120,7 @@ namespace CollisionDetection {
         // Default failsafe for unimplemented collisions
         return false;
     }
-    inline float minSeparation(const std::vector<Vector2>& aVertices, const std::vector<Vector2>& bVertices, Vector2& axis, Vector2& point)
-    {
-        float separation = std::numeric_limits<float>::lowest();
-        auto aPolyShapeSize = aVertices.size();
-        auto bPolyShapeSize = bVertices.size();
-        for (int i = 0; i < aPolyShapeSize; ++i)
-        {
-            // va <=> Vertex A
-            Vector2 va = aVertices[i];
-            Vector2 edge = aVertices[(i + 1) % aPolyShapeSize] - va;
-            Vector2 normal = edge.perpendicular();
 
-            float minSep = std::numeric_limits<float>::max();
-            Vector2 minVertex;
-            for (int j = 0; j < bPolyShapeSize; ++j)
-            {
-                auto vb = bVertices[j];
-
-                float proj = (vb - va).dot(normal);
-                if (proj < minSep)
-                {
-                    minSep = proj;
-                    minVertex = vb;
-                }
-            }
-
-            if (minSep > separation) {
-                separation = minSep;
-                axis = edge;
-                point = minVertex;
-            }
-        }
-
-        return separation;
-    }
 
     inline void resolve_collision(const CollisionInfo &info) {
         Rigidbody2D *a = info.a;

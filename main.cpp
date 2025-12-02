@@ -69,10 +69,11 @@ int main() {
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
+    ImGuiIO &io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
-    ImGui_ImplGlfw_InitForOpenGL(window, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
     ImGui_ImplOpenGL3_Init();
 
     std::chrono::time_point<std::chrono::high_resolution_clock> last_tick = std::chrono::high_resolution_clock::now();
@@ -152,19 +153,18 @@ void mouse_callback(GLFWwindow *window, int button, int action, int mods) {
                 const auto circle_mesh = std::make_shared<Circle>(0.1f, 30);
                 const auto player = Engine::create_game_object(pos, 3.0f);
                 player->add_renderer(circle_mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
-                Engine::physics.registerRigidBody(player, 0.0, 0.1f, new BoxShape(0.2f, 0.2f));
+                Engine::physics.registerRigidBody(player, 0.0, 0.1f, 0.5, new BoxShape(0.2f, 0.2f));
             }
-                break;
+            break;
             case SpawnObjectType::DynamicSphere: {
                 const auto circle_mesh = std::make_shared<Circle>(0.1f, 30);
                 const auto player = Engine::create_game_object(pos);
                 player->add_renderer(circle_mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
-                Engine::physics.registerRigidBody(player, 1.0, 0.1f, new BoxShape(0.2f, 0.2f));
+                Engine::physics.registerRigidBody(player, 1.0, 0.1f, 0.5, new BoxShape(0.2f, 0.2f));
             }
-                break;
+            break;
             default:
                 break;
-
         }
     }
 }
@@ -198,15 +198,13 @@ void draw_ui() {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    const char* particles[] = { "Sparkle", "LiquidStream" };
-    const char* spawn_objects[] = { "Particles", "StaticSphere", "DynamicSphere" };
+    const char *particles[] = {"Sparkle", "LiquidStream"};
+    const char *spawn_objects[] = {"Particles", "StaticSphere", "DynamicSphere"};
     static int particle_selected_idx = 0;
     static int spawn_object_selected_idx = 0;
 
-    if (ImGui::BeginListBox("EmitterType"))
-    {
-        for (int n = 0; n < IM_ARRAYSIZE(particles); n++)
-        {
+    if (ImGui::BeginListBox("EmitterType")) {
+        for (int n = 0; n < IM_ARRAYSIZE(particles); n++) {
             const bool is_selected = (particle_selected_idx == n);
             if (ImGui::Selectable(particles[n], is_selected))
                 particle_selected_idx = n;
@@ -214,16 +212,14 @@ void draw_ui() {
             // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
             if (is_selected) {
                 ImGui::SetItemDefaultFocus();
-                current_emitter_type = (EmitterType)n;
+                current_emitter_type = (EmitterType) n;
             }
         }
         ImGui::EndListBox();
     }
 
-    if (ImGui::BeginListBox("SpawnObjectType"))
-    {
-        for (int n = 0; n < IM_ARRAYSIZE(spawn_objects); n++)
-        {
+    if (ImGui::BeginListBox("SpawnObjectType")) {
+        for (int n = 0; n < IM_ARRAYSIZE(spawn_objects); n++) {
             const bool is_selected = (spawn_object_selected_idx == n);
             if (ImGui::Selectable(spawn_objects[n], is_selected))
                 spawn_object_selected_idx = n;
@@ -231,7 +227,7 @@ void draw_ui() {
             // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
             if (is_selected) {
                 ImGui::SetItemDefaultFocus();
-                current_spawn_object_type = (SpawnObjectType)n;
+                current_spawn_object_type = (SpawnObjectType) n;
             }
         }
         ImGui::EndListBox();
