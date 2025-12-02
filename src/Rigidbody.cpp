@@ -1,7 +1,7 @@
 ﻿#include "Rigidbody.h"
 
-Rigidbody2D::Rigidbody2D(Vector2* transform, const float &mass, Shape* shape, const float &rotation)
-    : transform(transform), mass(mass), shape(shape), rotation(rotation)
+Rigidbody2D::Rigidbody2D(Vector2* transform, const float &mass, const float &restitution, Shape* shape, const float &rotation)
+    : transform(transform), mass(mass), restitution(restitution), shape(shape), rotation(rotation)
 {
     // Mass == 0 means a static object
     invMass = mass == 0.0f ? 0.0f : 1 / mass;
@@ -13,6 +13,12 @@ void Rigidbody2D::resetForces()
 {
     sumForces = Vector2();
     sumTorque = 0.0f;
+}
+
+void Rigidbody2D::impulse(const Vector2 &impulse)
+{
+    if (invMass == 0.0f) return;
+    velocity += impulse * invMass;
 }
 
 void Rigidbody2D::addForce(Vector2 force)

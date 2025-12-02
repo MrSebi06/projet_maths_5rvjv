@@ -24,7 +24,7 @@ public:
 
     void draw() const;
     void add_renderer(const std::shared_ptr<Mesh> &mesh, GLuint shader, const Vector3 &color);
-    Rigidbody2D* add_rigidbody(const float& mass, Shape* shape, const float& rotation);
+    Rigidbody2D* add_rigidbody(const float& mass, const float& restitution, Shape* shape, const float& rotation);
 
     Vector2 get_position() const { return position; }
 };

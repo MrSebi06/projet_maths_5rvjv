@@ -60,12 +60,24 @@ namespace CollisionDetection {
         Rigidbody2D* a = info.a;
         Rigidbody2D* b = info.b;
 
+        // Penetration algorithm (Moves the objects on each other's bounds)
         float d = info.depth / (a->invMass + b->invMass);
         float da = d * a->invMass;
         float db = d * b->invMass;
 
         *a->transform -= info.normal * da;
         *b->transform += info.normal * db;
+
+        // Impulse algorithm (Changes their velocities to move away)
+        float elasticity = std::min(a->restitution, b->restitution);
+        Vector2 velDiff = a->velocity - b->velocity;
+
+        float impulseMag = -(1+elasticity) * velDiff.dot(info.normal) / (a->invMass + b->invMass);
+        Vector2 impulseDir = info.normal;
+
+        Vector2 impulse = impulseDir * impulseMag;
+        a->impulse(impulse);
+        b->impulse(impulse * -1);
     }
 }
 

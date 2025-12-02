@@ -19,9 +19,9 @@ struct Vector2 {
 
     Vector2 &operator=(const Vector2 &other);
 
-    Vector2 operator+(const Vector2 &other);
-    Vector2 operator-(const Vector2 &other);
-    Vector2 operator*(const float &factor);
+    Vector2 operator+(const Vector2 &other) const;
+    Vector2 operator-(const Vector2 &other) const;
+    Vector2 operator*(const float &factor) const;
     Vector2 operator/(const float &factor) const;
 
     Vector2 &operator+=(const Vector2 &other);

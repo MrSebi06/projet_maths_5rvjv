@@ -23,15 +23,15 @@ Vector2 &Vector2::operator=(const Vector2 &other) {
     return *this;
 }
 
-Vector2 Vector2::operator+(const Vector2 &other) {
+Vector2 Vector2::operator+(const Vector2 &other) const {
     return {x + other.x, y + other.y};
 }
 
-Vector2 Vector2::operator-(const Vector2 &other) {
+Vector2 Vector2::operator-(const Vector2 &other) const {
     return {x - other.x, y - other.y};
 }
 
-Vector2 Vector2::operator*(const float &factor) {
+Vector2 Vector2::operator*(const float &factor) const {
     return {x * factor, y * factor};
 }
 
