@@ -15,3 +15,9 @@ void GameObject::draw() const {
 void GameObject::add_renderer(const std::shared_ptr<Mesh> &mesh, GLuint shader, const Vector3 &color) {
     renderer = std::make_unique<MeshRenderer>(mesh, shader, &position, color);
 }
+
+Rigidbody2D* GameObject::add_rigidbody(const float &mass, Shape *shape, const float &rotation)
+{
+    body = new Rigidbody2D(&position, mass, shape, rotation);
+    return body;
+}

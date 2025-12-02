@@ -23,8 +23,8 @@ namespace CollisionDetection {
         CircleShape* aCircleShape = (CircleShape*) a->shape;
         CircleShape* bCircleShape = (CircleShape*) b->shape;
 
-        Vector2 aPos = a->gameObject->position;
-        Vector2 bPos = b->gameObject->position;
+        Vector2 aPos = *a->transform;
+        Vector2 bPos = *b->transform;
 
         const Vector2 ab = bPos - aPos;
         const float abMag = ab.magnitude();
@@ -64,8 +64,8 @@ namespace CollisionDetection {
         float da = d * a->invMass;
         float db = d * b->invMass;
 
-        a->gameObject->position -= info.normal * da;
-        b->gameObject->position += info.normal * db;
+        *a->transform -= info.normal * da;
+        *b->transform += info.normal * db;
     }
 }
 

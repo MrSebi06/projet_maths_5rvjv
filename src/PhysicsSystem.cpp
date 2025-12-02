@@ -39,7 +39,7 @@ void PhysicsSystem::update(const float dt) const {
 
 void PhysicsSystem::registerRigidBody(GameObject *gameObject, const float &mass, Shape *shape, const float &rotation)
 {
-    bodies.push_back(new Rigidbody2D(gameObject, mass, shape, rotation));
+    bodies.push_back(gameObject->add_rigidbody(mass, shape, rotation));
 }
 
 void PhysicsSystem::add_wind(const Vector2 &wind_) {

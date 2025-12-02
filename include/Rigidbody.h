@@ -12,7 +12,8 @@
 
 class Rigidbody2D {
 public:
-    GameObject* gameObject;
+    // TODO: P L E A S E STOP REWRITING THIS AND JUST USE A TRANSFORM COMPONENT
+    Vector2* transform;
     Shape* shape;
 
     float mass, invMass;
@@ -24,7 +25,7 @@ public:
     float sumTorque;
 
 
-    Rigidbody2D(GameObject* gameObject, const float& mass, Shape* shape, const float& rotation);
+    Rigidbody2D(Vector2* transform, const float& mass, Shape* shape, const float& rotation);
 
     void resetForces();
     void addForce(Vector2 force);

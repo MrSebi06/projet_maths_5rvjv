@@ -1,7 +1,7 @@
 ﻿#include "Rigidbody.h"
 
-Rigidbody2D::Rigidbody2D(GameObject* gameObject, const float &mass, Shape* shape, const float &rotation)
-    : gameObject(gameObject), mass(mass), shape(shape), rotation(rotation)
+Rigidbody2D::Rigidbody2D(Vector2* transform, const float &mass, Shape* shape, const float &rotation)
+    : transform(transform), mass(mass), shape(shape), rotation(rotation)
 {
     // Mass == 0 means a static object
     invMass = mass == 0.0f ? 0.0f : 1 / mass;
@@ -35,7 +35,7 @@ void Rigidbody2D::integrate(float dt) {
     angularVelocity += angularAcceleration * dt;
 
     // ...and position is impacted by velocity!
-    gameObject->position += velocity * dt;
+    *transform += velocity * dt;
     rotation += angularVelocity * dt;
 
     resetForces();
