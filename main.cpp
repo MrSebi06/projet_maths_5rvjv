@@ -1,4 +1,4 @@
-﻿#include <chrono>
+#include <chrono>
 #include <random>
 
 #include "init.h"
@@ -21,7 +21,14 @@ enum class EmitterType {
     LiquidStream
 };
 
+enum class SpawnObjectType {
+    Particles,
+    StaticSphere,
+    DynamicSphere,
+};
+
 auto current_emitter_type = EmitterType::Sparkle;
+auto current_spawn_object_type = SpawnObjectType::Particles;
 
 void process_continuous_input(GLFWwindow *window, const float dt);
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
@@ -101,21 +108,23 @@ int main() {
 
 
 void process_continuous_input(GLFWwindow *window, const float dt) {
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-        double xpos, ypos;
-        glfwGetCursorPos(window, &xpos, &ypos);
+    double xpos, ypos;
+    glfwGetCursorPos(window, &xpos, &ypos);
+    const Vector2 pos = screen_to_world(static_cast<float>(xpos), static_cast<float>(ypos));
 
-        const Vector2 pos = screen_to_world(static_cast<float>(xpos), static_cast<float>(ypos));
-        ParticleEmitter *emitter = nullptr;
-        switch (current_emitter_type) {
-            case EmitterType::Sparkle:
-                emitter = new SparkleEmitter(pos);
-                break;
-            case EmitterType::LiquidStream:
-                emitter = new LiquidStreamEmitter(pos);
-                break;
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+        if (current_spawn_object_type == SpawnObjectType::Particles) {
+            ParticleEmitter *emitter = nullptr;
+            switch (current_emitter_type) {
+                case EmitterType::Sparkle:
+                    emitter = new SparkleEmitter(pos);
+                    break;
+                case EmitterType::LiquidStream:
+                    emitter = new LiquidStreamEmitter(pos);
+                    break;
+            }
+            emitter->play_for(dt + static_cast<float>(0.1), true);
         }
-        emitter->play_for(dt + static_cast<float>(0.1), true);
     }
     if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
         Engine::physics.add_wind(Vector2(0.1f, 0));
@@ -130,33 +139,30 @@ void process_continuous_input(GLFWwindow *window, const float dt) {
 void key_callback(GLFWwindow *window, const int key, int scancode, int action, int mods) {
     const Shaders shaders = *static_cast<Shaders *>(glfwGetWindowUserPointer(window));
 
-    if (key == GLFW_KEY_TAB && action == GLFW_PRESS) {
-        // Switch between liquid and sparkle emitters
-        current_emitter_type = (current_emitter_type == EmitterType::Sparkle)
-                                   ? EmitterType::LiquidStream
-                                   : EmitterType::Sparkle;
-    }
-
-    if (key == GLFW_KEY_C && action == GLFW_PRESS) {
+    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
         double xpos, ypos;
         glfwGetCursorPos(window, &xpos, &ypos);
         const Vector2 pos = screen_to_world(static_cast<float>(xpos), static_cast<float>(ypos));
 
-        const auto circle_mesh = std::make_shared<Circle>(0.1f, 30);
-        const auto player = Engine::create_game_object(pos);
-        player->add_renderer(circle_mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
-        Engine::physics.registerRigidBody(player, 1.0, 1.0, new CircleShape(0.1f));
-    }
+        switch (current_spawn_object_type) {
+            case SpawnObjectType::StaticSphere: {
+                    const auto circle_mesh = std::make_shared<Circle>(0.1f, 30);
+                    const auto player = Engine::create_game_object(pos, 3.0f);
+                    player->add_renderer(circle_mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
+                    Engine::physics.registerRigidBody(player, 0.0, 0.1, new CircleShape(0.1f), 0.0f);
+                }
+                break;
+            case SpawnObjectType::DynamicSphere: {
+                    const auto circle_mesh = std::make_shared<Circle>(0.1f, 30);
+                    const auto player = Engine::create_game_object(pos);
+                    player->add_renderer(circle_mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
+                    Engine::physics.registerRigidBody(player, 1.0, 1.0, new CircleShape(0.1f), 0.0f);
+                }
+                break;
+            default:
+                break;
 
-    if (key == GLFW_KEY_V && action == GLFW_PRESS) {
-        double xpos, ypos;
-        glfwGetCursorPos(window, &xpos, &ypos);
-        const Vector2 pos = screen_to_world(static_cast<float>(xpos), static_cast<float>(ypos));
-
-        const auto circle_mesh = std::make_shared<Circle>(0.1f, 30);
-        const auto player = Engine::create_game_object(pos, 3.0f);
-        player->add_renderer(circle_mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
-        Engine::physics.registerRigidBody(player, 0.0, 0.5f, new CircleShape(0.1f));
+        }
     }
 
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
@@ -185,21 +191,40 @@ void draw_ui() {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    const char* items[] = { "Sparkle", "LiquidStream" };
-    static int item_selected_idx = 0; // Here we store our selected data as an index.
+    const char* particles[] = { "Sparkle", "LiquidStream" };
+    const char* spawn_objects[] = { "Particles", "StaticSphere", "DynamicSphere" };
+    static int particle_selected_idx = 0;
+    static int spawn_object_selected_idx = 0;
 
     if (ImGui::BeginListBox("EmitterType"))
     {
-        for (int n = 0; n < IM_ARRAYSIZE(items); n++)
+        for (int n = 0; n < IM_ARRAYSIZE(particles); n++)
         {
-            const bool is_selected = (item_selected_idx == n);
-            if (ImGui::Selectable(items[n], is_selected))
-                item_selected_idx = n;
+            const bool is_selected = (particle_selected_idx == n);
+            if (ImGui::Selectable(particles[n], is_selected))
+                particle_selected_idx = n;
 
             // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
             if (is_selected) {
                 ImGui::SetItemDefaultFocus();
                 current_emitter_type = (EmitterType)n;
+            }
+        }
+        ImGui::EndListBox();
+    }
+
+    if (ImGui::BeginListBox("SpawnObjectType"))
+    {
+        for (int n = 0; n < IM_ARRAYSIZE(spawn_objects); n++)
+        {
+            const bool is_selected = (spawn_object_selected_idx == n);
+            if (ImGui::Selectable(spawn_objects[n], is_selected))
+                spawn_object_selected_idx = n;
+
+            // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+            if (is_selected) {
+                ImGui::SetItemDefaultFocus();
+                current_spawn_object_type = (SpawnObjectType)n;
             }
         }
         ImGui::EndListBox();
