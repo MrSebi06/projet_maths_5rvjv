@@ -128,7 +128,7 @@ void key_callback(GLFWwindow *window, const int key, int scancode, int action, i
         const auto circle_mesh = std::make_shared<Circle>(0.1f, 30);
         const auto player = Engine::create_game_object(pos);
         player->add_renderer(circle_mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
-        Engine::physics.registerRigidBody(player, 1.0, 1.0, 0.5, new CircleShape(0.1f));
+        Engine::physics.registerRigidBody(player, 1.0, 0.5, 0.5, new CircleShape(0.1f));
     }
 
     if (key == GLFW_KEY_V && action == GLFW_PRESS) {
@@ -139,7 +139,7 @@ void key_callback(GLFWwindow *window, const int key, int scancode, int action, i
         const auto circle_mesh = std::make_shared<Circle>(0.1f, 30);
         const auto player = Engine::create_game_object(pos);
         player->add_renderer(circle_mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
-        Engine::physics.registerRigidBody(player, 0.0, 0.5f, 0.5, new CircleShape(0.1f));
+        Engine::physics.registerRigidBody(player, 0.0, 0.5, 0.5, new CircleShape(0.1f));
     }
 
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)

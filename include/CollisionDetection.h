@@ -69,24 +69,24 @@ namespace CollisionDetection {
         const Vector2 vb = b->velocity + Vector2(-(b->angularVelocity) * rb.getY(), b->angularVelocity * rb.getX());
 
         const Vector2 vrel = va - vb;
+        const float elasticity = -(1 + std::min(a->restitution, b->restitution));
+        const float sum_inv_masses = a->invMass + b->invMass;
+
         const float vrel_dot_normal = vrel.dot(info.normal);
-        const float elasticity = std::min(a->friction, b->friction);
-        const float impulseMagN = -(1 + elasticity) * vrel_dot_normal /
-                                  ((a->invMass + b->invMass)
+        const float impulseMagN = elasticity * vrel_dot_normal /
+                                  (sum_inv_masses
                                    + ra.cross(info.normal) * ra.cross(info.normal) * a->invI
                                    + rb.cross(info.normal) * rb.cross(info.normal) * b->invI);
-        const Vector2 impulseDirN = info.normal;
-        const Vector2 impulseN = impulseDirN * impulseMagN;
+        const Vector2 impulseN = info.normal * impulseMagN;
 
         const Vector2 tangent = info.normal.perpendicular();
         const float vrel_dot_tangent = vrel.dot(tangent);
-        const float friction = std::min(a->restitution, b->restitution);
-        const float impulseMagT = friction * -(1 + elasticity) * vrel_dot_tangent /
-                                  ((a->invMass + b->invMass)
+        const float friction = std::min(a->friction, b->friction);
+        const float impulseMagT = friction * elasticity * vrel_dot_tangent /
+                                  (sum_inv_masses
                                    + ra.cross(tangent) * ra.cross(tangent) * a->invI
                                    + rb.cross(tangent) * rb.cross(tangent) * b->invI);
-        const Vector2 impulseDirT = tangent;
-        const Vector2 impulseT = impulseDirT * impulseMagT;
+        const Vector2 impulseT = tangent * impulseMagT;
 
         const Vector2 impulse = impulseN + impulseT;
 
