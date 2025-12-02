@@ -30,8 +30,8 @@ namespace Engine {
         }
     }
 
-    inline GameObject *create_game_object(const Vector2 &pos = Vector2{0.0f, 0.0f}) {
-        game_objects.push_back(std::make_unique<GameObject>(pos));
+    inline GameObject *create_game_object(const Vector2 &pos = Vector2{0.0f, 0.0f}, const float rot = 0.0f) {
+        game_objects.push_back(std::make_unique<GameObject>(pos, rot));
         return game_objects.back().get();
     }
 }

@@ -23,6 +23,7 @@ public:
     float getRotation() const { return rotation; }
 
     void addPosition(const Vector2 &position_);
+    void addRotation(const float &rotation_);
 };
 
 

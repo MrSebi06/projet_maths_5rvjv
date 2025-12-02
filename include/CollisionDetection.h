@@ -8,23 +8,21 @@
 #include "Rigidbody.h"
 
 namespace CollisionDetection {
-    struct CollisionInfo
-    {
-        Rigidbody2D* a;
-        Rigidbody2D* b;
+    struct CollisionInfo {
+        Rigidbody2D *a;
+        Rigidbody2D *b;
         Vector2 start, end;
 
         Vector2 normal;
         float depth;
     };
 
-    inline bool isCollidingCircleCircle(Rigidbody2D* a, Rigidbody2D* b, CollisionInfo& info)
-    {
-        CircleShape* aCircleShape = (CircleShape*) a->shape;
-        CircleShape* bCircleShape = (CircleShape*) b->shape;
+    inline bool isCollidingCircleCircle(Rigidbody2D *a, Rigidbody2D *b, CollisionInfo &info) {
+        const auto *aCircleShape = dynamic_cast<CircleShape *>(a->shape);
+        const auto bCircleShape = dynamic_cast<CircleShape *>(b->shape);
 
-        Vector2 aPos = *a->transform;
-        Vector2 bPos = *b->transform;
+        const Vector2 aPos = a->transform->getPosition();
+        const Vector2 bPos = b->transform->getPosition();
 
         const Vector2 ab = bPos - aPos;
         const float abMag = ab.magnitude();
@@ -38,14 +36,13 @@ namespace CollisionDetection {
 
         info.normal = ab.normalized();
         info.start = bPos - info.normal * bCircleShape->radius;
-        info.end = aPos + info.normal* aCircleShape->radius;
+        info.end = aPos + info.normal * aCircleShape->radius;
         info.depth = (info.end - info.start).magnitude();
 
         return true;
     }
 
-    inline bool isColliding(Rigidbody2D* a, Rigidbody2D* b, CollisionInfo& info)
-    {
+    inline bool isColliding(Rigidbody2D *a, Rigidbody2D *b, CollisionInfo &info) {
         ShapeType aType = a->shape->GetType();
         ShapeType bType = b->shape->GetType();
         if (aType == CIRCLE && bType == CIRCLE)
@@ -55,24 +52,23 @@ namespace CollisionDetection {
         return false;
     }
 
-    inline void ResolveCollision(CollisionInfo& info)
-    {
-        Rigidbody2D* a = info.a;
-        Rigidbody2D* b = info.b;
+    inline void ResolveCollision(CollisionInfo &info) {
+        Rigidbody2D *a = info.a;
+        Rigidbody2D *b = info.b;
 
         // Penetration algorithm (Moves the objects on each other's bounds)
         float d = info.depth / (a->invMass + b->invMass);
         float da = d * a->invMass;
         float db = d * b->invMass;
 
-        *a->transform -= info.normal * da;
-        *b->transform += info.normal * db;
+        a->transform->addPosition(info.normal * -da);
+        b->transform->addPosition(info.normal * db);
 
         // Impulse algorithm (Changes their velocities to move away)
         float elasticity = std::min(a->restitution, b->restitution);
         Vector2 velDiff = a->velocity - b->velocity;
 
-        float impulseMag = -(1+elasticity) * velDiff.dot(info.normal) / (a->invMass + b->invMass);
+        float impulseMag = -(1 + elasticity) * velDiff.dot(info.normal) / (a->invMass + b->invMass);
         Vector2 impulseDir = info.normal;
 
         Vector2 impulse = impulseDir * impulseMag;

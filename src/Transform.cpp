@@ -5,3 +5,7 @@
 #include "../include/Transform.h"
 
 void Transform::addPosition(const Vector2 &position_) { position += position_; }
+
+void Transform::addRotation(const float &rotation_) {
+    rotation += rotation_;
+}

@@ -4,11 +4,23 @@
 
 #include "Mesh/MeshRenderer.h"
 
+#include <glm/ext/matrix_float4x4.hpp>
+#include <glm/ext/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.inl>
+
+#include "Transform.h"
+
 void MeshRenderer::draw() const {
     if (mesh == nullptr) return;
 
     glUseProgram(shader_program);
-    glUniform2f(loc_offset, position->x, position->y);
+
+    auto model = glm::mat4(1.0f);
+    const Vector2 pos = transform->getPosition();
+    model = glm::translate(model, glm::vec3(pos.getX(), pos.getY(), 0.0f));
+    model = glm::rotate(model, transform->getRotation(), glm::vec3(0.0, 0.0, 1.0));
+    glUniformMatrix4fv(loc_model_matrix, 1, GL_FALSE, glm::value_ptr(model));
+
     glUniform3f(loc_color, color.x, color.y, color.z);
 
     mesh->bind();

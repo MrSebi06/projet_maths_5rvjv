@@ -10,23 +10,27 @@
 #include "Mesh/MeshRenderer.h"
 #include "Vector/Vector2.h"
 #include "Rigidbody.h"
+#include "Transform.h"
 
 class Rigidbody2D;
 
 class GameObject {
-    Vector2 position;
+    Transform transform;
 
     std::unique_ptr<MeshRenderer> renderer = nullptr;
-    Rigidbody2D* body = nullptr;
+    Rigidbody2D *body = nullptr;
 
 public:
-    explicit GameObject(const Vector2 &pos) : position{pos} {};
+    explicit GameObject(const Vector2 &position, const float rotation = 0.0)
+        : transform{
+            Transform(position, rotation)
+        } {};
 
     void draw() const;
     void add_renderer(const std::shared_ptr<Mesh> &mesh, GLuint shader, const Vector3 &color);
-    Rigidbody2D* add_rigidbody(const float& mass, const float& restitution, Shape* shape, const float& rotation);
+    Rigidbody2D *add_rigidbody(const float &mass, const float &restitution, Shape *shape);
 
-    Vector2 get_position() const { return position; }
+    Vector2 get_position() const { return transform.getPosition(); }
 };
 
 

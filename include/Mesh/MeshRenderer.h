@@ -11,19 +11,25 @@
 #include "Vector/Vector3.h"
 
 
+class Transform;
+
 class MeshRenderer {
     std::shared_ptr<Mesh> mesh;
     GLuint shader_program;
-    Vector2 *position;
+    Transform *transform;
     Vector3 color;
 
-    GLint loc_offset = -1;
+    GLint loc_model_matrix = -1;
     GLint loc_color = -1;
 
 public:
-    MeshRenderer(const std::shared_ptr<Mesh> &mesh, const GLuint shader_program, Vector2 *position,
-                 const Vector3 &color) : mesh(mesh), shader_program(shader_program), position(position), color(color) {
-        loc_offset = glGetUniformLocation(shader_program, "uOffset");
+    MeshRenderer(const std::shared_ptr<Mesh> &mesh, const GLuint shader_program, Transform *transform,
+                 const Vector3 &color)
+        : mesh(mesh),
+          shader_program(shader_program),
+          transform(transform),
+          color(color) {
+        loc_model_matrix = glGetUniformLocation(shader_program, "model");
         loc_color = glGetUniformLocation(shader_program, "uColor");
     }
 

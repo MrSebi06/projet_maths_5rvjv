@@ -52,6 +52,7 @@ int main() {
     set_aspect_ratio(WIDTH, HEIGHT, base_shader_program);
 
     Engine::init(particle_shader_program);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     std::chrono::time_point<std::chrono::high_resolution_clock> last_tick = std::chrono::high_resolution_clock::now();
     while (!glfwWindowShouldClose(window)) {
@@ -127,7 +128,7 @@ void key_callback(GLFWwindow *window, const int key, int scancode, int action, i
         const auto circle_mesh = std::make_shared<Circle>(0.1f, 30);
         const auto player = Engine::create_game_object(pos);
         player->add_renderer(circle_mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
-        Engine::physics.registerRigidBody(player, 1.0, 1.0, new CircleShape(0.1f), 0.0f);
+        Engine::physics.registerRigidBody(player, 1.0, 1.0, new CircleShape(0.1f));
     }
 
     if (key == GLFW_KEY_V && action == GLFW_PRESS) {
@@ -136,9 +137,9 @@ void key_callback(GLFWwindow *window, const int key, int scancode, int action, i
         const Vector2 pos = screen_to_world(static_cast<float>(xpos), static_cast<float>(ypos));
 
         const auto circle_mesh = std::make_shared<Circle>(0.1f, 30);
-        const auto player = Engine::create_game_object(pos);
+        const auto player = Engine::create_game_object(pos, 3.0f);
         player->add_renderer(circle_mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
-        Engine::physics.registerRigidBody(player, 0.0, 0.1f, new CircleShape(0.1f), 0.0f);
+        Engine::physics.registerRigidBody(player, 0.0, 0.5f, new CircleShape(0.1f));
     }
 
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
