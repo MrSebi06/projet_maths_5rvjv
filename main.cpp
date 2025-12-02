@@ -149,14 +149,14 @@ void key_callback(GLFWwindow *window, const int key, int scancode, int action, i
                     const auto circle_mesh = std::make_shared<Circle>(0.1f, 30);
                     const auto player = Engine::create_game_object(pos, 3.0f);
                     player->add_renderer(circle_mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
-                    Engine::physics.registerRigidBody(player, 0.0, 0.1, new CircleShape(0.1f), 0.0f);
+                    Engine::physics.registerRigidBody(player, 0.0, 0.1, new CircleShape(0.1f));
                 }
                 break;
             case SpawnObjectType::DynamicSphere: {
                     const auto circle_mesh = std::make_shared<Circle>(0.1f, 30);
                     const auto player = Engine::create_game_object(pos);
                     player->add_renderer(circle_mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
-                    Engine::physics.registerRigidBody(player, 1.0, 1.0, new CircleShape(0.1f), 0.0f);
+                    Engine::physics.registerRigidBody(player, 1.0, 1.0, new CircleShape(0.1f));
                 }
                 break;
             default:
