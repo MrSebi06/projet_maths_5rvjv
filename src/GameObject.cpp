@@ -8,6 +8,7 @@
 #include "Mesh/Circle/Circle.h"
 
 void GameObject::draw() const {
+    if (renderer == nullptr) return;
     renderer->draw();
 }
 

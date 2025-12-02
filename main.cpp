@@ -120,8 +120,12 @@ void key_callback(GLFWwindow *window, const int key, int scancode, int action, i
     }
 
     if (key == GLFW_KEY_C && action == GLFW_PRESS) {
+        double xpos, ypos;
+        glfwGetCursorPos(window, &xpos, &ypos);
+        const Vector2 pos = screen_to_world(static_cast<float>(xpos), static_cast<float>(ypos));
+
         const auto circle_mesh = std::make_shared<Circle>(0.1f, 30);
-        const auto player = Engine::create_game_object();
+        const auto player = Engine::create_game_object(pos);
         player->add_renderer(circle_mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
     }
 

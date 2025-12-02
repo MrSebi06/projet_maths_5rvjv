@@ -15,7 +15,7 @@ class MeshRenderer;
 namespace Engine {
     inline PhysicsSystem physics;
     inline ParticleSystem particles;
-    inline std::vector<GameObject> game_objects;
+    inline std::vector<std::unique_ptr<GameObject> > game_objects;
 
     inline void init(const GLuint particle_shader) {
         particles.init(particle_shader);
@@ -29,13 +29,13 @@ namespace Engine {
     inline void draw() {
         particles.draw();
         for (const auto &go: game_objects) {
-            go.draw();
+            go->draw();
         }
     }
 
-    inline GameObject *create_game_object() {
-        game_objects.emplace_back();
-        return &game_objects.back();
+    inline GameObject *create_game_object(const Vector2 &pos = Vector2{0.0f, 0.0f}) {
+        game_objects.push_back(std::make_unique<GameObject>(pos));
+        return game_objects.back().get();
     }
 }
 

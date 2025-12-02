@@ -14,12 +14,15 @@
 class GameObject {
     Vector2 position;
 
-    std::unique_ptr<MeshRenderer> renderer;
+    std::unique_ptr<MeshRenderer> renderer = nullptr;
 
 public:
-    void draw() const;
+    explicit GameObject(const Vector2 &pos) : position{pos} {};
 
+    void draw() const;
     void add_renderer(const std::shared_ptr<Mesh> &mesh, GLuint shader, const Vector3 &color);
+
+    Vector2 get_position() const { return position; }
 };
 
 
