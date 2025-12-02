@@ -15,7 +15,7 @@ void PhysicsSystem::update(const float dt) const {
     for (int i = 0; i < bodies.size(); ++i) {
         Rigidbody2D *body = bodies[i];
         body->addForce(wind);
-        body->addForce(GRAVITY);
+        body->addForce(GRAVITY * body->mass);
 
         body->integrate(dt);
     }
