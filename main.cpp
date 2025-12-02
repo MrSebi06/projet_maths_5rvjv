@@ -3,6 +3,9 @@
 
 #include "init.h"
 
+#include "imgui-1.92.5/imgui.h"
+#include "imgui-1.92.5/backends/imgui_impl_glfw.h"
+#include "imgui-1.92.5/backends/imgui_impl_opengl3.h"
 #include "Engine.h"
 #include "GameObject.h"
 #include "Particles/Emitters/LiquidStreamEmitter.h"
@@ -24,6 +27,7 @@ void process_continuous_input(GLFWwindow *window, const float dt);
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
 Vector2 screen_to_world(float mouseX, float mouseY);
 void window_size_callback(GLFWwindow *window, int width, int height);
+void draw_ui();
 
 struct Shaders {
     GLuint particle_shader_program;
@@ -54,6 +58,14 @@ int main() {
     Engine::init(particle_shader_program);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+
+    ImGui_ImplGlfw_InitForOpenGL(window, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
+    ImGui_ImplOpenGL3_Init();
+
     std::chrono::time_point<std::chrono::high_resolution_clock> last_tick = std::chrono::high_resolution_clock::now();
     while (!glfwWindowShouldClose(window)) {
         // Calculate delta time using system clock
@@ -71,9 +83,14 @@ int main() {
 
         Engine::draw();
 
-        glfwSwapBuffers(window);
         glfwPollEvents();
+        draw_ui();
+        glfwSwapBuffers(window);
     }
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
     glDeleteProgram(particle_shader_program);
 
@@ -161,4 +178,34 @@ void window_size_callback(GLFWwindow *window, const int width, const int height)
     const Shaders shaders = *static_cast<Shaders *>(glfwGetWindowUserPointer(window));
     set_aspect_ratio(width, height, shaders.particle_shader_program);
     set_aspect_ratio(width, height, shaders.base_shader_program);
+}
+
+void draw_ui() {
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
+    const char* items[] = { "Sparkle", "LiquidStream" };
+    static int item_selected_idx = 0; // Here we store our selected data as an index.
+
+    if (ImGui::BeginListBox("EmitterType"))
+    {
+        for (int n = 0; n < IM_ARRAYSIZE(items); n++)
+        {
+            const bool is_selected = (item_selected_idx == n);
+            if (ImGui::Selectable(items[n], is_selected))
+                item_selected_idx = n;
+
+            // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+            if (is_selected) {
+                ImGui::SetItemDefaultFocus();
+                current_emitter_type = (EmitterType)n;
+            }
+        }
+        ImGui::EndListBox();
+    }
+
+
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }

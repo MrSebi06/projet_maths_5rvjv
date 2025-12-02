@@ -41,6 +41,16 @@ add_executable(projet_maths_5rvjv main.cpp
         src/GameObject.cpp
         include/GameObject.h
         include/CollisionDetection.h
+        include/imgui-1.92.5/imgui.h
+        include/imgui-1.92.5/backends/imgui_impl_opengl3.h
+        include/imgui-1.92.5/backends/imgui_impl_glfw.h
+        include/imgui-1.92.5/backends/imgui_impl_opengl3.cpp
+        include/imgui-1.92.5/backends/imgui_impl_glfw.cpp
+        include/imgui-1.92.5/imgui.cpp
+        include/imgui-1.92.5/imgui_draw.cpp
+        include/imgui-1.92.5/imgui_tables.cpp
+        include/imgui-1.92.5/imgui_widgets.cpp
+        include/imgui-1.92.5/imgui_demo.cpp
         src/Transform.cpp
         include/Transform.h)
 
