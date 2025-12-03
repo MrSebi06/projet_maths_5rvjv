@@ -1,4 +1,5 @@
 ﻿#include "../../include/Physics/CollisionShape.h"
+#include <math.h>
 
 CircleCollisionShape::~CircleCollisionShape() noexcept = default;
 ShapeType CircleCollisionShape::GetType() const { return CIRCLE; }
@@ -7,11 +8,16 @@ float CircleCollisionShape::getMomentOfInertia() const { return radius * radius 
 ShapeType PolygonCollisionShape::GetType() const { return POLYGON; }
 float PolygonCollisionShape::getMomentOfInertia() const { return 0.0f; }
 
-std::vector<Vector2> PolygonCollisionShape::getTranslatedVertices(const Vector2 &translation) const
+std::vector<Vector2> PolygonCollisionShape::getTranslatedVertices(const Vector2 &translation, const float &rotation) const
 {
     std::vector<Vector2> res = vertices;
     for (auto& re : res)
+    {
+        Vector2 initialPoint = re;
+        re.x = initialPoint.x * cosf(rotation) - initialPoint.y * sinf(rotation);
+        re.y = initialPoint.y * cosf(rotation) + initialPoint.x * sinf(rotation);
         re += translation;
+    }
     return res;
 }
 

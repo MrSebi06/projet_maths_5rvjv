@@ -76,8 +76,11 @@ namespace CollisionDetection {
         PolygonCollisionShape *aPolyShape = (PolygonCollisionShape *) a->shape;
         PolygonCollisionShape *bPolyShape = (PolygonCollisionShape *) b->shape;
 
-        auto aTranslatedVertices = aPolyShape->getTranslatedVertices(a->transform->getPosition());
-        auto bTranslatedVertices = bPolyShape->getTranslatedVertices(b->transform->getPosition());
+        const Transform& aTransform = *a->transform;
+        const Transform& bTransform = *b->transform;
+
+        auto aTranslatedVertices = aPolyShape->getTranslatedVertices(aTransform.getPosition(), aTransform.getRotation());
+        auto bTranslatedVertices = bPolyShape->getTranslatedVertices(bTransform.getPosition(), bTransform.getRotation());
 
         // Cut algorithm short for time if not needed
         Vector2 aAxis, aPoint;

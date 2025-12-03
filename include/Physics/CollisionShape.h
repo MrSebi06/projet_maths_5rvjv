@@ -46,7 +46,7 @@ struct PolygonCollisionShape : public CollisionShape {
     virtual ~PolygonCollisionShape() = default;
     ShapeType GetType() const override;
     float getMomentOfInertia() const override;
-    std::vector<Vector2> getTranslatedVertices(const Vector2 &translation) const;
+    std::vector<Vector2> getTranslatedVertices(const Vector2& translation, const float& rotation) const;
 };
 
 struct BoxCollisionShape : public PolygonCollisionShape {
