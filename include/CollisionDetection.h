@@ -109,6 +109,7 @@ namespace CollisionDetection {
     }
 
     inline bool is_colliding(Rigidbody2D *a, Rigidbody2D *b, CollisionInfo &info) {
+        if (a->mass == 0 && b->mass == 0) return false;
         const ShapeType aType = a->shape->GetType();
         const ShapeType bType = b->shape->GetType();
         if (aType == CIRCLE && bType == CIRCLE)
