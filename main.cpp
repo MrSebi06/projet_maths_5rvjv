@@ -76,6 +76,9 @@ int main() {
     // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
     ImGui_ImplOpenGL3_Init();
 
+    float deltaTimes[200];
+    int deltaIndex = 0;
+
     std::chrono::time_point<std::chrono::high_resolution_clock> last_tick = std::chrono::high_resolution_clock::now();
     while (!glfwWindowShouldClose(window)) {
         // Calculate delta time using system clock
@@ -86,7 +89,15 @@ int main() {
         last_tick = current_time;
 
         process_continuous_input(window, dt);
-        Engine::update(dt);
+
+        float averageDT = 0;
+        for (float deltaTime : deltaTimes)
+            averageDT += deltaTime;
+
+        averageDT /= 200;
+
+        if (dt < averageDT*3)
+            Engine::update(dt);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -96,6 +107,10 @@ int main() {
         glfwPollEvents();
         draw_ui();
         glfwSwapBuffers(window);
+
+        deltaTimes[deltaIndex] = dt;
+        deltaIndex = (deltaIndex+1)%200;
+
     }
 
     ImGui_ImplOpenGL3_Shutdown();
