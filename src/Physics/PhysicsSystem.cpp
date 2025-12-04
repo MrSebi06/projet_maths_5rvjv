@@ -2,10 +2,11 @@
 // Created by Sacha TOUTUT on 04/11/2025.
 //
 
-#include <../include/Physics/PhysicsSystem.h>
+#include <Physics/PhysicsSystem.h>
 
-#include "Engine.h"
-#include "Physics/CollisionDetection.h"
+#include <Engine.h>
+#include <Physics/CollisionDetection.h>
+#include <algorithm>
 
 #define GRAVITY Vector2(0, -9.81f)
 
@@ -14,8 +15,8 @@ void PhysicsSystem::update(const float dt) const {
     Engine::particles.add_force(GRAVITY);
 
     for (const auto body: bodies) {
-        body->addForce(wind);
-        body->addForce(GRAVITY * body->mass);
+        body->add_force(wind);
+        body->add_force(GRAVITY * body->mass);
 
         body->integrate(dt);
     }
@@ -32,18 +33,22 @@ void PhysicsSystem::update(const float dt) const {
     }
 }
 
-void PhysicsSystem::registerRigidBody(GameObject *gameObject,
-                                      const float &mass,
-                                      const float &restitution,
-                                      const float friction,
-                                      CollisionShape *shape,
-                                      bool debug) {
-    bodies.push_back(gameObject->add_rigidbody(mass, restitution, friction, shape, debug));
+void PhysicsSystem::register_rigid_body(Rigidbody2D *body) {
+    bodies.push_back(body);
+}
+
+void PhysicsSystem::unregister_rigid_body(Rigidbody2D *body) {
+    bodies.erase(std::ranges::remove(bodies, body).begin(), bodies.end());
+}
+
+void PhysicsSystem::clear_bodies() {
+    bodies.clear();
 }
 
 void PhysicsSystem::add_wind(const Vector2 &wind_) {
     wind += wind_;
 }
+
 
 
 

@@ -17,11 +17,12 @@ namespace CollisionDetection {
         float depth;
     };
 
-    inline float minSeparation(const std::vector<Vector2> &aVertices, const std::vector<Vector2> &bVertices,
-                               Vector2 &axis, Vector2 &point) {
+    inline float min_separation(const std::vector<Vector2> &aVertices, const std::vector<Vector2> &bVertices,
+                                Vector2 &axis, Vector2 &point) {
         float separation = std::numeric_limits<float>::lowest();
-        auto aPolyShapeSize = aVertices.size();
-        auto bPolyShapeSize = bVertices.size();
+        const auto aPolyShapeSize = aVertices.size();
+        const auto bPolyShapeSize = bVertices.size();
+
         for (int i = 0; i < aPolyShapeSize; ++i) {
             // va <=> Vertex A
             Vector2 va = aVertices[i];
@@ -72,24 +73,26 @@ namespace CollisionDetection {
         return true;
     }
 
-    inline bool isCollidingPolygonPolygon(Rigidbody2D *a, Rigidbody2D *b, CollisionInfo &info) {
+    inline bool is_colliding_polygon_polygon(Rigidbody2D *a, Rigidbody2D *b, CollisionInfo &info) {
         PolygonCollisionShape *aPolyShape = (PolygonCollisionShape *) a->shape;
         PolygonCollisionShape *bPolyShape = (PolygonCollisionShape *) b->shape;
 
-        const Transform& aTransform = *a->transform;
-        const Transform& bTransform = *b->transform;
+        const Transform &aTransform = *a->transform;
+        const Transform &bTransform = *b->transform;
 
-        auto aTranslatedVertices = aPolyShape->getTranslatedVertices(aTransform.getPosition(), aTransform.getRotation());
-        auto bTranslatedVertices = bPolyShape->getTranslatedVertices(bTransform.getPosition(), bTransform.getRotation());
+        auto aTranslatedVertices = aPolyShape->
+                getTranslatedVertices(aTransform.getPosition(), aTransform.getRotation());
+        auto bTranslatedVertices = bPolyShape->
+                getTranslatedVertices(bTransform.getPosition(), bTransform.getRotation());
 
         // Cut algorithm short for time if not needed
         Vector2 aAxis, aPoint;
-        auto abSeparation = minSeparation(aTranslatedVertices, bTranslatedVertices, aAxis, aPoint);
+        auto abSeparation = min_separation(aTranslatedVertices, bTranslatedVertices, aAxis, aPoint);
         if (abSeparation > 0)
             return false;
 
         Vector2 bAxis, bPoint;
-        auto baSeparation = minSeparation(bTranslatedVertices, aTranslatedVertices, bAxis, bPoint);
+        auto baSeparation = min_separation(bTranslatedVertices, aTranslatedVertices, bAxis, bPoint);
         if (baSeparation > 0)
             return false;
 
@@ -113,14 +116,16 @@ namespace CollisionDetection {
 
     inline bool is_colliding(Rigidbody2D *a, Rigidbody2D *b, CollisionInfo &info) {
         if (a->mass == 0 && b->mass == 0) return false;
-        if ((b->transform->getPosition()-a->transform->getPosition()).magnitude() > a->shape->broadRadius + b->shape->broadRadius) return false;
-        const ShapeType aType = a->shape->GetType();
-        const ShapeType bType = b->shape->GetType();
+        if ((b->transform->getPosition() - a->transform->getPosition()).magnitude() > a->shape->broadRadius + b->shape->
+            broadRadius)
+            return false;
+        const ShapeType aType = a->shape->get_type();
+        const ShapeType bType = b->shape->get_type();
         if (aType == CIRCLE && bType == CIRCLE)
             return is_colliding_circle_circle(a, b, info);
 
         if (aType == POLYGON && bType == POLYGON)
-            return isCollidingPolygonPolygon(a, b, info);
+            return is_colliding_polygon_polygon(a, b, info);
 
         // Default failsafe for unimplemented collisions
         return false;

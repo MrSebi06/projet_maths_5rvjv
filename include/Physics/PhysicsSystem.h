@@ -22,11 +22,10 @@ public:
     PhysicsSystem() = default;
 
     void update(float dt) const;
-    void registerRigidBody(GameObject *gameObject,
-                           const float &mass,
-                           const float &restitution,
-                           float friction,
-                           CollisionShape *shape, bool debug = false);
+
+    void register_rigid_body(Rigidbody2D *body);
+    void unregister_rigid_body(Rigidbody2D *body);
+    void clear_bodies();
 
     void add_wind(const Vector2 &wind_);
 };

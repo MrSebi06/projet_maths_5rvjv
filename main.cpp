@@ -2,21 +2,15 @@
 #include <random>
 
 #include "init.h"
+#include "input.h"
 
-#include "imgui-1.92.5/imgui.h"
 #include "imgui-1.92.5/backends/imgui_impl_glfw.h"
 #include "imgui-1.92.5/backends/imgui_impl_opengl3.h"
 #include "Engine.h"
-#include "GameObject.h"
 #include "Mesh/Polygon/Square.h"
 #include "Particles/Emitters/LiquidStreamEmitter.h"
 #include "Particles/Emitters/SparkleEmitter.h"
 #include "Physics/CollisionShape.h"
-
-#define WIDTH 800
-#define HEIGHT 600
-#define ASPECT_RATIO (static_cast<float>(WIDTH) / static_cast<float>(HEIGHT))
-
 
 enum class EmitterType {
     Sparkle,
@@ -36,56 +30,32 @@ enum class SpawnObjectType {
 auto current_emitter_type = EmitterType::Sparkle;
 auto current_spawn_object_type = SpawnObjectType::Particles;
 
-void process_continuous_input(GLFWwindow *window, float dt);
-void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
-void mouse_callback(GLFWwindow *window, int button, int action, int mods);
-Vector2 screen_to_world(float mouseX, float mouseY);
-void window_size_callback(GLFWwindow *window, int width, int height);
 void draw_ui();
-
-struct Shaders {
-    GLuint particle_shader_program;
-    GLuint base_shader_program;
-};
 
 int main() {
     std::srand(std::time({}));
 
-    GLFW_config();
-    GLFWwindow *window = create_window(WIDTH, HEIGHT);
-    glfwSetFramebufferSizeCallback(window, window_size_callback);
+    GLFWwindow *window = GLFW_init(800, 600);
     glfwSetKeyCallback(window, key_callback);
     glfwSetMouseButtonCallback(window, mouse_callback);
-    glfwMakeContextCurrent(window);
-    glfwSwapInterval(0);
 
     GLAD_init();
+    IMGUI_init(window);
 
-    GLuint particle_shader_program = create_shader_program("particle.vert", "particle.frag");
-    GLuint base_shader_program = create_shader_program("base.vert", "base.frag");
+    const GLuint particle_shader_program = create_shader_program("particle.vert", "particle.frag");
+    const GLuint base_shader_program = create_shader_program("base.vert", "base.frag");
 
     Shaders shaders = {particle_shader_program, base_shader_program};
-
     glfwSetWindowUserPointer(window, &shaders);
-    set_aspect_ratio(WIDTH, HEIGHT, particle_shader_program);
-    set_aspect_ratio(WIDTH, HEIGHT, base_shader_program);
+    set_aspect_ratio(800, 600, particle_shader_program);
+    set_aspect_ratio(800, 600, base_shader_program);
 
     Engine::init(particle_shader_program, base_shader_program);
-    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO &io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
-    ImGui_ImplOpenGL3_Init();
 
     float deltaTimes[200];
     int deltaIndex = 0;
-
     std::chrono::time_point<std::chrono::high_resolution_clock> last_tick = std::chrono::high_resolution_clock::now();
+
     while (!glfwWindowShouldClose(window)) {
         // Calculate delta time using system clock
         const auto current_time = std::chrono::high_resolution_clock::now();
@@ -97,7 +67,7 @@ int main() {
         process_continuous_input(window, dt);
 
         float averageDT = 0;
-        for (float deltaTime: deltaTimes)
+        for (const float deltaTime: deltaTimes)
             averageDT += deltaTime;
 
         averageDT /= 200;
@@ -129,7 +99,6 @@ int main() {
     return 0;
 }
 
-
 void process_continuous_input(GLFWwindow *window, const float dt) {
     double xpos, ypos;
     glfwGetCursorPos(window, &xpos, &ypos);
@@ -160,7 +129,7 @@ void process_continuous_input(GLFWwindow *window, const float dt) {
 }
 
 
-void mouse_callback(GLFWwindow *window, int button, int action, int mods) {
+void mouse_callback(GLFWwindow *window, const int button, const int action, int mods) {
     const Shaders shaders = *static_cast<Shaders *>(glfwGetWindowUserPointer(window));
 
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && !ImGui::GetIO().WantCaptureMouse) {
@@ -170,31 +139,31 @@ void mouse_callback(GLFWwindow *window, int button, int action, int mods) {
 
         switch (current_spawn_object_type) {
             case SpawnObjectType::StaticSphere: {
-                const auto mesh = std::make_shared<Circle>(0.1f, 30);
+                const auto mesh = std::make_shared<CircleMesh>(0.1f, 30);
                 const auto game_object = Engine::create_game_object(pos);
                 game_object->add_renderer(mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
-                Engine::physics.registerRigidBody(game_object, 0.0, 0.5f, 0.5, new CircleCollisionShape(0.1f), true);
+                game_object->add_rigidbody(0.0, 0.5f, 0.2, new CircleCollisionShape(0.1f), true);
             }
             break;
             case SpawnObjectType::DynamicSphere: {
-                const auto mesh = std::make_shared<Circle>(0.1f, 30);
+                const auto mesh = std::make_shared<CircleMesh>(0.1f, 30);
                 const auto game_object = Engine::create_game_object(pos);
                 game_object->add_renderer(mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
-                Engine::physics.registerRigidBody(game_object, 1.0, 0.5f, 0.5, new CircleCollisionShape(0.1f), true);
+                game_object->add_rigidbody(1.0, 0.5f, 0.2, new CircleCollisionShape(0.1f), true);
             }
             break;
             case SpawnObjectType::StaticSquare: {
-                const auto mesh = std::make_shared<Square>(0.2f);
+                const auto mesh = std::make_shared<SquareMesh>(0.2f);
                 const auto game_object = Engine::create_game_object(pos);
                 game_object->add_renderer(mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
-                Engine::physics.registerRigidBody(game_object, 0.0, 0.1f, 0.2, new BoxCollisionShape(0.2f, 0.2f), true);
+                game_object->add_rigidbody(0.0, 0.1f, 0.2, new BoxCollisionShape(0.2f, 0.2f), true);
             }
             break;
             case SpawnObjectType::DynamicSquare: {
-                const auto mesh = std::make_shared<Square>(0.2f);
+                const auto mesh = std::make_shared<SquareMesh>(0.2f);
                 const auto game_object = Engine::create_game_object(pos);
                 game_object->add_renderer(mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
-                Engine::physics.registerRigidBody(game_object, 1.0, 0.1f, 0.2, new BoxCollisionShape(0.2f, 0.2f), true);
+                game_object->add_rigidbody(1.0, 0.1f, 0.2, new BoxCollisionShape(0.2f, 0.2f), true);
             }
             break;
             default:
@@ -203,29 +172,14 @@ void mouse_callback(GLFWwindow *window, int button, int action, int mods) {
     }
 }
 
-void key_callback(GLFWwindow *window, const int key, int scancode, int action, int mods) {
-    // const Shaders shaders = *static_cast<Shaders *>(glfwGetWindowUserPointer(window));
-
+void key_callback(GLFWwindow *window, const int key, const int scancode, const int action, const int mods) {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+    if (key == GLFW_KEY_R && action == GLFW_PRESS) {
+        Engine::clear_game_objects();
+    }
 }
 
-Vector2 screen_to_world(const float mouseX, const float mouseY) {
-    int width, height;
-    glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
-
-    const float aspect = static_cast<float>(width) / static_cast<float>(height);
-    const float x = (2.0f * mouseX / static_cast<float>(width) - 1.0f) * aspect;
-    const float y = 1.0f - 2.0f * mouseY / static_cast<float>(height);
-    return {x, y};
-}
-
-void window_size_callback(GLFWwindow *window, const int width, const int height) {
-    glViewport(0, 0, width, height);
-    const Shaders shaders = *static_cast<Shaders *>(glfwGetWindowUserPointer(window));
-    set_aspect_ratio(width, height, shaders.particle_shader_program);
-    set_aspect_ratio(width, height, shaders.base_shader_program);
-}
 
 void draw_ui() {
     ImGui_ImplOpenGL3_NewFrame();

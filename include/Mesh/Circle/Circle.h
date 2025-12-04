@@ -13,13 +13,13 @@
 #include "Vector/Vector3.h"
 
 
-class Circle : public Mesh {
+class CircleMesh : public Mesh {
 public:
     float radius;
     unsigned int segments;
 
-    explicit Circle(const float radius, const unsigned int segments) : radius(radius),
-                                                                       segments(segments) {
+    explicit CircleMesh(const float radius, const unsigned int segments) : radius(radius),
+                                                                           segments(segments) {
         const double angle = 360.0 / segments;
 
         std::vector<Vector2> vertices;

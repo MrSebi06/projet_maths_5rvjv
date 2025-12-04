@@ -35,7 +35,6 @@ add_executable(projet_maths_5rvjv main.cpp
         include/Physics/Rigidbody.h
         src/Physics/Rigidbody.cpp
         include/Physics/CollisionShape.h
-        src/Physics/CollisionShape.cpp
         src/Mesh/MeshRenderer.cpp
         include/Mesh/MeshRenderer.h
         src/GameObject.cpp
@@ -53,7 +52,12 @@ add_executable(projet_maths_5rvjv main.cpp
         include/imgui-1.92.5/imgui_demo.cpp
         src/Transform.cpp
         include/Transform.h
-        include/Mesh/Polygon/Square.h)
+        include/Mesh/Polygon/Square.h
+        src/Physics/CollisionShapes/Circle.cpp
+        src/Physics/CollisionShapes/Polygon.cpp
+        src/Physics/CollisionShapes/Box.cpp
+        include/input.h
+)
 
 target_link_libraries(projet_maths_5rvjv ${OPENGL_LIBRARIES} glfw)
 

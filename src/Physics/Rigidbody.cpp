@@ -13,7 +13,7 @@ Rigidbody2D::Rigidbody2D(Transform *transform, const float &mass, const float &r
       angularAcceleration(0), sumTorque(0) {
     // Mass == 0 means a static object
     invMass = mass == 0.0f ? 0.0f : 1 / mass;
-    I = mass * shape->getMomentOfInertia();
+    I = mass * shape->get_moment_of_inertia();
     invI = I == 0.0f ? 0.0f : 1 / I;
 
     if (debug) {
@@ -26,7 +26,7 @@ Rigidbody2D::Rigidbody2D(Transform *transform, const float &mass, const float &r
     }
 }
 
-void Rigidbody2D::resetForces() {
+void Rigidbody2D::reset_forces() {
     sumForces = Vector2();
     sumTorque = 0.0f;
 }
@@ -38,11 +38,11 @@ void Rigidbody2D::impulse(const Vector2 &impulse, const Vector2 &rotation
     angularVelocity += rotation.cross(impulse) * invI;
 }
 
-void Rigidbody2D::addForce(const Vector2 &force) {
+void Rigidbody2D::add_force(const Vector2 &force) {
     sumForces += force;
 }
 
-void Rigidbody2D::addTorque(const float torque) {
+void Rigidbody2D::add_torque(const float torque) {
     sumTorque += torque;
 }
 
@@ -61,5 +61,5 @@ void Rigidbody2D::integrate(const float dt) {
     transform->addPosition(velocity * dt);
     transform->addRotation(angularVelocity * dt);
 
-    resetForces();
+    reset_forces();
 }

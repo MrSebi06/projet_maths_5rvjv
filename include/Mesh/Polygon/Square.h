@@ -8,11 +8,11 @@
 
 #include "Mesh/Mesh.h"
 
-class Square : public Mesh {
+class SquareMesh : public Mesh {
 public:
     float size;
 
-    explicit Square(const float size_) : size(size_ / 2) {
+    explicit SquareMesh(const float size_) : size(size_ / 2) {
         const Vector2 vertices[4] = {
             {size, size}, // TR
             {size, -size}, // BR

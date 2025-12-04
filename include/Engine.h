@@ -42,6 +42,13 @@ namespace Engine {
         return game_objects.back().get();
     }
 
+    inline void clear_game_objects(
+    ) {
+        game_objects.clear();
+        physics.clear_bodies();
+        debug_renderers.clear();
+    }
+
     inline void register_debug_renderer(MeshRenderer *renderer) {
         debug_renderers.push_back(renderer);
     }

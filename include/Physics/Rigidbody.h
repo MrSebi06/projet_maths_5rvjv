@@ -30,10 +30,10 @@ public:
     Rigidbody2D(Transform *transform, const float &mass, const float &restitution, float friction,
                 CollisionShape *shape, bool debug = false);
 
-    void resetForces();
+    void reset_forces();
+    void add_force(const Vector2 &force);
+    void add_torque(float torque);
     void impulse(const Vector2 &impulse, const Vector2 &rotation = {0.0f, 0.0f});
-    void addForce(const Vector2 &force);
-    void addTorque(float torque);
 
     void integrate(float dt);
 };

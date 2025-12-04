@@ -6,13 +6,21 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.inl>
 
+#include "helpers.h"
 #include "glad/glad.h"
+#include "imgui-1.92.5/imgui.h"
+#include "imgui-1.92.5/backends/imgui_impl_glfw.h"
+#include "imgui-1.92.5/backends/imgui_impl_opengl3.h"
+
 
 void framebuffer_size_callback(GLFWwindow *window, const int width, const int height) {
     glViewport(0, 0, width, height);
+    const Shaders shaders = *static_cast<Shaders *>(glfwGetWindowUserPointer(window));
+    set_aspect_ratio(width, height, shaders.particle_shader_program);
+    set_aspect_ratio(width, height, shaders.base_shader_program);
 }
 
-void GLFW_config() {
+GLFWwindow *GLFW_init(const int width, const int height) {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -20,9 +28,8 @@ void GLFW_config() {
 #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
-}
+    glfwSwapInterval(0);
 
-GLFWwindow *create_window(const int width, const int height) {
     GLFWwindow *window = glfwCreateWindow(width, height, "LearnOpenGL", nullptr, nullptr);
     if (window == nullptr) {
         glfwTerminate();
@@ -39,47 +46,15 @@ void GLAD_init() {
     }
 }
 
-GLuint create_shader_program(const std::string &vert, const std::string &frag) {
-    const GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    std::ifstream vertex_shader_file("shaders/" + vert);
-    std::string vertex_shader_str((std::istreambuf_iterator(vertex_shader_file)),
-                                  std::istreambuf_iterator<char>());
-    const char *vertex_shader_source = vertex_shader_str.c_str();
-    glShaderSource(vertex_shader, 1, &vertex_shader_source, nullptr);
-    glCompileShader(vertex_shader);
-    int success;
-    char info_log[512];
-    glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(vertex_shader, 512, nullptr, info_log);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << info_log << std::endl;
-    }
 
-    const GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    std::ifstream fragment_shader_file("shaders/" + frag);
-    std::string fragment_shader_str((std::istreambuf_iterator(fragment_shader_file)),
-                                    std::istreambuf_iterator<char>());
-    const char *fragment_shader_source = fragment_shader_str.c_str();
-    glShaderSource(fragment_shader, 1, &fragment_shader_source, nullptr);
-    glCompileShader(fragment_shader);
-    glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(fragment_shader, 512, nullptr, info_log);
-        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << info_log << std::endl;
-    }
+void IMGUI_init(GLFWwindow *window) {
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO &io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
-    const GLuint shader_program = glCreateProgram();
-    glAttachShader(shader_program, vertex_shader);
-    glAttachShader(shader_program, fragment_shader);
-    glLinkProgram(shader_program);
-    glGetProgramiv(shader_program, GL_LINK_STATUS, &success);
-    if (!success) {
-        glGetProgramInfoLog(shader_program, 512, nullptr, info_log);
-        std::cout << "ERROR::SHADER::PROGRAM::COMPILATION_FAILED\n" << info_log << std::endl;
-    }
-    glDeleteShader(vertex_shader);
-    glDeleteShader(fragment_shader);
-
-    return shader_program;
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
+    ImGui_ImplOpenGL3_Init();
 }
 
