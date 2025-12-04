@@ -1,4 +1,4 @@
-﻿#include "Rigidbody.h"
+﻿#include "../../include/Physics/Rigidbody.h"
 
 Rigidbody2D::Rigidbody2D(Transform *transform, const float &mass, const float &restitution, const float friction,
                          Shape *shape)

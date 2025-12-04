@@ -8,8 +8,10 @@
 #include "imgui-1.92.5/backends/imgui_impl_opengl3.h"
 #include "Engine.h"
 #include "GameObject.h"
+#include "Mesh/Polygon/Square.h"
 #include "Particles/Emitters/LiquidStreamEmitter.h"
 #include "Particles/Emitters/SparkleEmitter.h"
+#include "Physics/Shape.h"
 
 #define WIDTH 800
 #define HEIGHT 600
@@ -23,14 +25,18 @@ enum class EmitterType {
 
 enum class SpawnObjectType {
     Particles,
+
     StaticSphere,
     DynamicSphere,
+
+    StaticSquare,
+    DynamicSquare,
 };
 
 auto current_emitter_type = EmitterType::Sparkle;
 auto current_spawn_object_type = SpawnObjectType::Particles;
 
-void process_continuous_input(GLFWwindow *window, const float dt);
+void process_continuous_input(GLFWwindow *window, float dt);
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
 void mouse_callback(GLFWwindow *window, int button, int action, int mods);
 Vector2 screen_to_world(float mouseX, float mouseY);
@@ -65,7 +71,7 @@ int main() {
     set_aspect_ratio(WIDTH, HEIGHT, base_shader_program);
 
     Engine::init(particle_shader_program);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -91,12 +97,12 @@ int main() {
         process_continuous_input(window, dt);
 
         float averageDT = 0;
-        for (float deltaTime : deltaTimes)
+        for (float deltaTime: deltaTimes)
             averageDT += deltaTime;
 
         averageDT /= 200;
 
-        if (dt < averageDT*3)
+        if (dt < averageDT * 3)
             Engine::update(dt);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -109,8 +115,7 @@ int main() {
         glfwSwapBuffers(window);
 
         deltaTimes[deltaIndex] = dt;
-        deltaIndex = (deltaIndex+1)%200;
-
+        deltaIndex = (deltaIndex + 1) % 200;
     }
 
     ImGui_ImplOpenGL3_Shutdown();
@@ -165,17 +170,31 @@ void mouse_callback(GLFWwindow *window, int button, int action, int mods) {
 
         switch (current_spawn_object_type) {
             case SpawnObjectType::StaticSphere: {
-                const auto circle_mesh = std::make_shared<Circle>(0.1f, 30);
-                const auto player = Engine::create_game_object(pos, 3.0f);
-                player->add_renderer(circle_mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
-                Engine::physics.registerRigidBody(player, 0.0, 0.1f, 0.5, new BoxShape(0.2f, 0.2f));
+                const auto mesh = std::make_shared<Circle>(0.1f, 30);
+                const auto game_object = Engine::create_game_object(pos);
+                game_object->add_renderer(mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
+                Engine::physics.registerRigidBody(game_object, 0.0, 0.5f, 0.5, new CircleShape(0.1f));
             }
             break;
             case SpawnObjectType::DynamicSphere: {
-                const auto circle_mesh = std::make_shared<Circle>(0.1f, 30);
-                const auto player = Engine::create_game_object(pos);
-                player->add_renderer(circle_mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
-                Engine::physics.registerRigidBody(player, 1.0, 0.1f, 0.5, new BoxShape(0.2f, 0.2f));
+                const auto mesh = std::make_shared<Circle>(0.1f, 30);
+                const auto game_object = Engine::create_game_object(pos);
+                game_object->add_renderer(mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
+                Engine::physics.registerRigidBody(game_object, 1.0, 0.5f, 0.5, new CircleShape(0.1f));
+            }
+            break;
+            case SpawnObjectType::StaticSquare: {
+                const auto mesh = std::make_shared<Square>(0.1f);
+                const auto game_object = Engine::create_game_object(pos);
+                game_object->add_renderer(mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
+                Engine::physics.registerRigidBody(game_object, 0.0, 0.1f, 0.5, new BoxShape(0.2f, 0.2f));
+            }
+            break;
+            case SpawnObjectType::DynamicSquare: {
+                const auto mesh = std::make_shared<Square>(0.1f);
+                const auto game_object = Engine::create_game_object(pos);
+                game_object->add_renderer(mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
+                Engine::physics.registerRigidBody(game_object, 1.0, 0.1f, 0.5, new BoxShape(0.2f, 0.2f));
             }
             break;
             default:
@@ -196,8 +215,8 @@ Vector2 screen_to_world(const float mouseX, const float mouseY) {
     glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
 
     const float aspect = static_cast<float>(width) / static_cast<float>(height);
-    const float x = (2.0f * mouseX / width - 1.0f) * aspect;
-    const float y = 1.0f - 2.0f * mouseY / height;
+    const float x = (2.0f * mouseX / static_cast<float>(width) - 1.0f) * aspect;
+    const float y = 1.0f - 2.0f * mouseY / static_cast<float>(height);
     return {x, y};
 }
 
@@ -213,12 +232,11 @@ void draw_ui() {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    const char *particles[] = {"Sparkle", "LiquidStream"};
-    const char *spawn_objects[] = {"Particles", "StaticSphere", "DynamicSphere"};
     static int particle_selected_idx = 0;
     static int spawn_object_selected_idx = 0;
 
     if (ImGui::BeginListBox("EmitterType")) {
+        const char *particles[] = {"Sparkle", "LiquidStream"};
         for (int n = 0; n < IM_ARRAYSIZE(particles); n++) {
             const bool is_selected = (particle_selected_idx == n);
             if (ImGui::Selectable(particles[n], is_selected))
@@ -227,13 +245,14 @@ void draw_ui() {
             // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
             if (is_selected) {
                 ImGui::SetItemDefaultFocus();
-                current_emitter_type = (EmitterType) n;
+                current_emitter_type = static_cast<EmitterType>(n);
             }
         }
         ImGui::EndListBox();
     }
 
     if (ImGui::BeginListBox("SpawnObjectType")) {
+        const char *spawn_objects[] = {"Particles", "StaticSphere", "DynamicSphere", "StaticSquare", "DynamicSquare",};
         for (int n = 0; n < IM_ARRAYSIZE(spawn_objects); n++) {
             const bool is_selected = (spawn_object_selected_idx == n);
             if (ImGui::Selectable(spawn_objects[n], is_selected))
@@ -242,7 +261,7 @@ void draw_ui() {
             // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
             if (is_selected) {
                 ImGui::SetItemDefaultFocus();
-                current_spawn_object_type = (SpawnObjectType) n;
+                current_spawn_object_type = static_cast<SpawnObjectType>(n);
             }
         }
         ImGui::EndListBox();

@@ -2,7 +2,7 @@
 // Created by Sacha TOUTUT on 04/11/2025.
 //
 
-#include <PhysicsSystem.h>
+#include <../include/Physics/PhysicsSystem.h>
 
 #include "Engine.h"
 

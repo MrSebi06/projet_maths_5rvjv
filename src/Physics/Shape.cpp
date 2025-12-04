@@ -1,4 +1,4 @@
-﻿#include "Shape.h"
+﻿#include "../../include/Physics/Shape.h"
 
 CircleShape::~CircleShape() noexcept = default;
 ShapeType CircleShape::GetType() const { return CIRCLE; }

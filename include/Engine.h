@@ -6,7 +6,7 @@
 #define PROJET_MATHS_5RVJV_ENGINE_H
 
 #include "GameObject.h"
-#include "PhysicsSystem.h"
+#include "Physics/PhysicsSystem.h"
 #include "Particles/ParticleSystem.h"
 
 namespace Engine {

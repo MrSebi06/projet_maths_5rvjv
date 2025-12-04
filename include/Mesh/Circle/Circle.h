@@ -38,7 +38,7 @@ public:
             indices.push_back(i + 1);
         }
 
-        setup_geometry(vertices.data(), vertices.size() * sizeof(Vector3), indices.data(),
+        setup_geometry(vertices.data(), vertices.size() * sizeof(Vector2), indices.data(),
                        indices.size() * sizeof(unsigned int));
     }
 };

@@ -3,7 +3,7 @@
 #define PROJET_MATHS_5RVJV_SHAPE_H
 
 #include <vector>
-#include "Vector/Vector2.h"
+#include "../Vector/Vector2.h"
 
 enum ShapeType {
     CIRCLE,

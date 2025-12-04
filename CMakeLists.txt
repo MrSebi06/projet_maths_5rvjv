@@ -24,7 +24,7 @@ add_executable(projet_maths_5rvjv main.cpp
         src/Vector/Vector3.cpp
         src/Vector/Vector2.cpp
         src/Particles/Particle.cpp
-        src/PhysicsSystem.cpp
+        src/Physics/PhysicsSystem.cpp
         src/Particles/ParticleSystem.cpp
         include/Particles/ParticleSystem.h
         include/Engine.h
@@ -32,15 +32,15 @@ add_executable(projet_maths_5rvjv main.cpp
         include/Particles/ParticleEmitter.h
         include/Random.h
         include/Particles/Emitters/SparkleEmitter.h
-        include/Rigidbody.h
-        src/Rigidbody.cpp
-        include/Shape.h
-        src/Shape.cpp
+        include/Physics/Rigidbody.h
+        src/Physics/Rigidbody.cpp
+        include/Physics/Shape.h
+        src/Physics/Shape.cpp
         src/Mesh/MeshRenderer.cpp
         include/Mesh/MeshRenderer.h
         src/GameObject.cpp
         include/GameObject.h
-        include/CollisionDetection.h
+        include/Physics/CollisionDetection.h
         include/imgui-1.92.5/imgui.h
         include/imgui-1.92.5/backends/imgui_impl_opengl3.h
         include/imgui-1.92.5/backends/imgui_impl_glfw.h
@@ -52,7 +52,8 @@ add_executable(projet_maths_5rvjv main.cpp
         include/imgui-1.92.5/imgui_widgets.cpp
         include/imgui-1.92.5/imgui_demo.cpp
         src/Transform.cpp
-        include/Transform.h)
+        include/Transform.h
+        include/Mesh/Polygon/Square.h)
 
 target_link_libraries(projet_maths_5rvjv ${OPENGL_LIBRARIES} glfw)
 

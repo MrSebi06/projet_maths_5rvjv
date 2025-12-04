@@ -9,7 +9,7 @@
 
 #include "Mesh/MeshRenderer.h"
 #include "Vector/Vector2.h"
-#include "Rigidbody.h"
+#include "Physics/Rigidbody.h"
 #include "Transform.h"
 
 class Rigidbody2D;

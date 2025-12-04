@@ -5,7 +5,7 @@
 #ifndef PROJET_MATHS_5RVJV_SIMULATION_H
 #define PROJET_MATHS_5RVJV_SIMULATION_H
 
-#include "Particles/ParticleSystem.h"
+#include "../Particles/ParticleSystem.h"
 #include "Rigidbody.h"
 #include "CollisionDetection.h"
 
