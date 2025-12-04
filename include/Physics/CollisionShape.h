@@ -19,7 +19,7 @@ struct CollisionShape {
 };
 
 struct CircleCollisionShape : public CollisionShape {
-    float radius;
+    float radius=0;
 
     explicit CircleCollisionShape(const float radius) : radius(radius) { broadRadius = radius; };
     virtual ~CircleCollisionShape();
@@ -50,7 +50,7 @@ struct PolygonCollisionShape : public CollisionShape {
 };
 
 struct BoxCollisionShape : public PolygonCollisionShape {
-    float width, height;
+    float width=0, height=0;
     BoxCollisionShape(float width, float height);
     virtual ~BoxCollisionShape() = default;
     ShapeType GetType() const override;
