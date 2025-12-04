@@ -17,7 +17,7 @@ void GameObject::add_renderer(const std::shared_ptr<Mesh> &mesh, GLuint shader, 
 }
 
 Rigidbody2D *GameObject::add_rigidbody(const float &mass, const float &restitution, const float friction,
-                                       CollisionShape *shape) {
-    body = new Rigidbody2D(&transform, mass, restitution, friction, shape);
+                                       CollisionShape *shape, const bool debug) {
+    body = new Rigidbody2D(&transform, mass, restitution, friction, shape, debug);
     return body;
 }

@@ -2,8 +2,10 @@
 #ifndef PROJET_MATHS_5RVJV_SHAPE_H
 #define PROJET_MATHS_5RVJV_SHAPE_H
 
+#include <memory>
 #include <vector>
-#include "../Vector/Vector2.h"
+#include "Vector/Vector2.h"
+#include "Mesh/Mesh.h"
 
 enum ShapeType {
     CIRCLE,
@@ -16,16 +18,18 @@ struct CollisionShape {
     virtual ~CollisionShape() = default;
     virtual ShapeType GetType() const = 0;
     virtual float getMomentOfInertia() const = 0;
+    virtual std::shared_ptr<Mesh> to_mesh() const = 0;
 };
 
 struct CircleCollisionShape : public CollisionShape {
-    float radius=0;
+    float radius = 0;
 
     explicit CircleCollisionShape(const float radius) : radius(radius) { broadRadius = radius; };
     virtual ~CircleCollisionShape();
     ShapeType GetType() const override;
 
     float getMomentOfInertia() const override;
+    std::shared_ptr<Mesh> to_mesh() const;
 };
 
 struct PolygonCollisionShape : public CollisionShape {
@@ -46,15 +50,17 @@ struct PolygonCollisionShape : public CollisionShape {
     virtual ~PolygonCollisionShape() = default;
     ShapeType GetType() const override;
     float getMomentOfInertia() const override;
-    std::vector<Vector2> getTranslatedVertices(const Vector2& translation, const float& rotation) const;
+    std::vector<Vector2> getTranslatedVertices(const Vector2 &translation, const float &rotation) const;
+    virtual std::shared_ptr<Mesh> to_mesh() const;
 };
 
 struct BoxCollisionShape : public PolygonCollisionShape {
-    float width=0, height=0;
+    float width = 0, height = 0;
     BoxCollisionShape(float width, float height);
     virtual ~BoxCollisionShape() = default;
     ShapeType GetType() const override;
     float getMomentOfInertia() const override;
+    std::shared_ptr<Mesh> to_mesh() const override;
 };
 
 #endif //PROJET_MATHS_5RVJV_SHAPE_H

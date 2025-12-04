@@ -13,9 +13,13 @@ namespace Engine {
     inline PhysicsSystem physics;
     inline ParticleSystem particles;
     inline std::vector<std::unique_ptr<GameObject> > game_objects;
+    inline std::vector<MeshRenderer *> debug_renderers;
 
-    inline void init(const GLuint particle_shader) {
+    inline GLuint debug_shader = -1;
+
+    inline void init(const GLuint particle_shader, const GLuint debug_shader_ = -1) {
         particles.init(particle_shader);
+        debug_shader = debug_shader_;
     }
 
     inline void update(const float dt) {
@@ -28,11 +32,18 @@ namespace Engine {
         for (const auto &go: game_objects) {
             go->draw();
         }
+        for (const auto &renderer: debug_renderers) {
+            renderer->draw();
+        }
     }
 
     inline GameObject *create_game_object(const Vector2 &pos = Vector2{0.0f, 0.0f}, const float rot = 0.0f) {
         game_objects.push_back(std::make_unique<GameObject>(pos, rot));
         return game_objects.back().get();
+    }
+
+    inline void register_debug_renderer(MeshRenderer *renderer) {
+        debug_renderers.push_back(renderer);
     }
 }
 

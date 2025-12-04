@@ -15,6 +15,9 @@ void MeshRenderer::draw() const {
 
     glUseProgram(shader_program);
 
+    if (debug)
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
     auto model = glm::mat4(1.0f);
     const Vector2 pos = transform->getPosition();
     model = glm::translate(model, glm::vec3(pos.getX(), pos.getY(), 0.0f));
@@ -26,4 +29,5 @@ void MeshRenderer::draw() const {
     mesh->bind();
     glDrawElements(GL_TRIANGLES, mesh->get_index_count(), GL_UNSIGNED_INT, nullptr);
     mesh->unbind();
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }

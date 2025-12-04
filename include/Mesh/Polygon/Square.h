@@ -6,19 +6,13 @@
 #define PROJET_MATHS_5RVJV_SQUARE_H
 
 
-#include <cmath>
-#include <vector>
-
-#include "helpers.h"
 #include "Mesh/Mesh.h"
-#include "Vector/Vector3.h"
-
 
 class Square : public Mesh {
 public:
     float size;
 
-    explicit Square(const float size) : size(size) {
+    explicit Square(const float size_) : size(size_ / 2) {
         const Vector2 vertices[4] = {
             {size, size}, // TR
             {size, -size}, // BR

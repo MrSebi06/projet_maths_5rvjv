@@ -1,7 +1,10 @@
-﻿#include "../../include/Physics/Rigidbody.h"
+﻿#include "Physics/Rigidbody.h"
+
+#include "Engine.h"
+
 
 Rigidbody2D::Rigidbody2D(Transform *transform, const float &mass, const float &restitution, const float friction,
-                         CollisionShape *shape)
+                         CollisionShape *shape, const bool debug)
     : transform(transform),
       shape(shape),
       restitution(restitution), friction(friction),
@@ -12,6 +15,15 @@ Rigidbody2D::Rigidbody2D(Transform *transform, const float &mass, const float &r
     invMass = mass == 0.0f ? 0.0f : 1 / mass;
     I = mass * shape->getMomentOfInertia();
     invI = I == 0.0f ? 0.0f : 1 / I;
+
+    if (debug) {
+        debug_renderer = std::make_unique<MeshRenderer>(shape->to_mesh(),
+                                                        Engine::debug_shader,
+                                                        transform,
+                                                        Vector3(0.0, 1.0, 0.0),
+                                                        debug);
+        Engine::register_debug_renderer(debug_renderer.get());
+    }
 }
 
 void Rigidbody2D::resetForces() {

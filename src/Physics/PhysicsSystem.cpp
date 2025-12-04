@@ -5,6 +5,7 @@
 #include <../include/Physics/PhysicsSystem.h>
 
 #include "Engine.h"
+#include "Physics/CollisionDetection.h"
 
 #define GRAVITY Vector2(0, -9.81f)
 
@@ -22,7 +23,7 @@ void PhysicsSystem::update(const float dt) const {
     // After the basic physics update, resolve collisions
     for (int i = 0; i < bodies.size(); ++i) {
         Rigidbody2D *currentBody = bodies[i];
-        
+
         for (int j = i + 1; j < bodies.size(); ++j) {
             CollisionDetection::CollisionInfo info;
             if (CollisionDetection::is_colliding(currentBody, bodies[j], info))
@@ -31,10 +32,13 @@ void PhysicsSystem::update(const float dt) const {
     }
 }
 
-void PhysicsSystem::registerRigidBody(GameObject *gameObject, const float &mass, const float &restitution,
+void PhysicsSystem::registerRigidBody(GameObject *gameObject,
+                                      const float &mass,
+                                      const float &restitution,
                                       const float friction,
-                                      CollisionShape *shape) {
-    bodies.push_back(gameObject->add_rigidbody(mass, restitution, friction, shape));
+                                      CollisionShape *shape,
+                                      bool debug) {
+    bodies.push_back(gameObject->add_rigidbody(mass, restitution, friction, shape, debug));
 }
 
 void PhysicsSystem::add_wind(const Vector2 &wind_) {

@@ -7,7 +7,6 @@
 
 #include "Vector/Vector2.h"
 #include "CollisionShape.h"
-#include "Mesh/Mesh.h"
 #include "GameObject.h"
 
 class Rigidbody2D {
@@ -26,8 +25,10 @@ public:
     float angularVelocity, angularAcceleration;
     float sumTorque;
 
+    std::unique_ptr<MeshRenderer> debug_renderer = nullptr;
 
-    Rigidbody2D(Transform *transform, const float &mass, const float &restitution, float friction, CollisionShape *shape);
+    Rigidbody2D(Transform *transform, const float &mass, const float &restitution, float friction,
+                CollisionShape *shape, bool debug = false);
 
     void resetForces();
     void impulse(const Vector2 &impulse, const Vector2 &rotation = {0.0f, 0.0f});
