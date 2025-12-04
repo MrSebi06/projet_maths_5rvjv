@@ -11,7 +11,7 @@
 #include "Mesh/Polygon/Square.h"
 #include "Particles/Emitters/LiquidStreamEmitter.h"
 #include "Particles/Emitters/SparkleEmitter.h"
-#include "Physics/Shape.h"
+#include "Physics/CollisionShape.h"
 
 #define WIDTH 800
 #define HEIGHT 600
@@ -173,28 +173,28 @@ void mouse_callback(GLFWwindow *window, int button, int action, int mods) {
                 const auto mesh = std::make_shared<Circle>(0.1f, 30);
                 const auto game_object = Engine::create_game_object(pos);
                 game_object->add_renderer(mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
-                Engine::physics.registerRigidBody(game_object, 0.0, 0.5f, 0.5, new CircleShape(0.1f));
+                Engine::physics.registerRigidBody(game_object, 0.0, 0.5f, 0.5, new CircleCollisionShape(0.1f));
             }
             break;
             case SpawnObjectType::DynamicSphere: {
                 const auto mesh = std::make_shared<Circle>(0.1f, 30);
                 const auto game_object = Engine::create_game_object(pos);
                 game_object->add_renderer(mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
-                Engine::physics.registerRigidBody(game_object, 1.0, 0.5f, 0.5, new CircleShape(0.1f));
+                Engine::physics.registerRigidBody(game_object, 1.0, 0.5f, 0.5, new CircleCollisionShape(0.1f));
             }
             break;
             case SpawnObjectType::StaticSquare: {
                 const auto mesh = std::make_shared<Square>(0.1f);
                 const auto game_object = Engine::create_game_object(pos);
                 game_object->add_renderer(mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
-                Engine::physics.registerRigidBody(game_object, 0.0, 0.1f, 0.5, new BoxShape(0.2f, 0.2f));
+                Engine::physics.registerRigidBody(game_object, 0.0, 0.1f, 0.5, new BoxCollisionShape(0.2f, 0.2f));
             }
             break;
             case SpawnObjectType::DynamicSquare: {
                 const auto mesh = std::make_shared<Square>(0.1f);
                 const auto game_object = Engine::create_game_object(pos);
                 game_object->add_renderer(mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
-                Engine::physics.registerRigidBody(game_object, 1.0, 0.1f, 0.5, new BoxShape(0.2f, 0.2f));
+                Engine::physics.registerRigidBody(game_object, 1.0, 0.1f, 0.5, new BoxCollisionShape(0.2f, 0.2f));
             }
             break;
             default:

@@ -11,47 +11,48 @@ enum ShapeType {
     BOX
 };
 
-struct Shape {
+struct CollisionShape {
     float broadRadius = 0;
-    virtual ~Shape() = default;
+    virtual ~CollisionShape() = default;
     virtual ShapeType GetType() const = 0;
     virtual float getMomentOfInertia() const = 0;
 };
 
-struct CircleShape : public Shape {
+struct CircleCollisionShape : public CollisionShape {
     float radius;
 
-    explicit CircleShape(const float radius) : radius(radius) {broadRadius = radius;};
-    virtual ~CircleShape();
+    explicit CircleCollisionShape(const float radius) : radius(radius) { broadRadius = radius; };
+    virtual ~CircleCollisionShape();
     ShapeType GetType() const override;
 
     float getMomentOfInertia() const override;
 };
 
-struct PolygonShape : public Shape {
+struct PolygonCollisionShape : public CollisionShape {
     std::vector<Vector2> vertices;
 
-    PolygonShape() = default;
-    explicit PolygonShape(const std::vector<Vector2>& vertices) : vertices(vertices) {
+    PolygonCollisionShape() = default;
+
+    explicit PolygonCollisionShape(const std::vector<Vector2> &vertices) : vertices(vertices) {
         float maxDist = 0;
         for (auto vertice: vertices) {
             float dist = vertice.magnitude();
-            if (dist>maxDist) {
+            if (dist > maxDist) {
                 maxDist = dist;
             }
         }
         broadRadius = maxDist;
     };
-    virtual ~PolygonShape() = default;
+    virtual ~PolygonCollisionShape() = default;
     ShapeType GetType() const override;
     float getMomentOfInertia() const override;
-    std::vector<Vector2> getTranslatedVertices(const Vector2& translation) const;
+    std::vector<Vector2> getTranslatedVertices(const Vector2 &translation) const;
 };
 
-struct BoxShape : public PolygonShape {
+struct BoxCollisionShape : public PolygonCollisionShape {
     float width, height;
-    BoxShape(float width, float height);
-    virtual ~BoxShape() = default;
+    BoxCollisionShape(float width, float height);
+    virtual ~BoxCollisionShape() = default;
     ShapeType GetType() const override;
     float getMomentOfInertia() const override;
 };

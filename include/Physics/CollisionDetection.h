@@ -51,8 +51,8 @@ namespace CollisionDetection {
     }
 
     inline bool is_colliding_circle_circle(Rigidbody2D *a, Rigidbody2D *b, CollisionInfo &info) {
-        const auto aCircleShape = dynamic_cast<CircleShape *>(a->shape);
-        const auto bCircleShape = dynamic_cast<CircleShape *>(b->shape);
+        const auto aCircleShape = dynamic_cast<CircleCollisionShape *>(a->shape);
+        const auto bCircleShape = dynamic_cast<CircleCollisionShape *>(b->shape);
 
         const Vector2 aPos = a->transform->getPosition();
         const Vector2 bPos = b->transform->getPosition();
@@ -73,8 +73,8 @@ namespace CollisionDetection {
     }
 
     inline bool isCollidingPolygonPolygon(Rigidbody2D *a, Rigidbody2D *b, CollisionInfo &info) {
-        PolygonShape *aPolyShape = (PolygonShape *) a->shape;
-        PolygonShape *bPolyShape = (PolygonShape *) b->shape;
+        PolygonCollisionShape *aPolyShape = (PolygonCollisionShape *) a->shape;
+        PolygonCollisionShape *bPolyShape = (PolygonCollisionShape *) b->shape;
 
         auto aTranslatedVertices = aPolyShape->getTranslatedVertices(a->transform->getPosition());
         auto bTranslatedVertices = bPolyShape->getTranslatedVertices(b->transform->getPosition());

@@ -1,7 +1,7 @@
 ﻿#include "../../include/Physics/Rigidbody.h"
 
 Rigidbody2D::Rigidbody2D(Transform *transform, const float &mass, const float &restitution, const float friction,
-                         Shape *shape)
+                         CollisionShape *shape)
     : transform(transform),
       shape(shape),
       restitution(restitution), friction(friction),

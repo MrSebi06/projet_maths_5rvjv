@@ -6,14 +6,14 @@
 #define PROJET_MATHS_5RVJV_RIGIDBODY_H
 
 #include "Vector/Vector2.h"
-#include "Shape.h"
+#include "CollisionShape.h"
 #include "Mesh/Mesh.h"
 #include "GameObject.h"
 
 class Rigidbody2D {
 public:
     Transform *transform;
-    Shape *shape;
+    CollisionShape *shape;
 
     float restitution;
     float friction;
@@ -27,7 +27,7 @@ public:
     float sumTorque;
 
 
-    Rigidbody2D(Transform *transform, const float &mass, const float &restitution, float friction, Shape *shape);
+    Rigidbody2D(Transform *transform, const float &mass, const float &restitution, float friction, CollisionShape *shape);
 
     void resetForces();
     void impulse(const Vector2 &impulse, const Vector2 &rotation = {0.0f, 0.0f});

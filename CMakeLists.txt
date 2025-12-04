@@ -34,8 +34,8 @@ add_executable(projet_maths_5rvjv main.cpp
         include/Particles/Emitters/SparkleEmitter.h
         include/Physics/Rigidbody.h
         src/Physics/Rigidbody.cpp
-        include/Physics/Shape.h
-        src/Physics/Shape.cpp
+        include/Physics/CollisionShape.h
+        src/Physics/CollisionShape.cpp
         src/Mesh/MeshRenderer.cpp
         include/Mesh/MeshRenderer.h
         src/GameObject.cpp

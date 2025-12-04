@@ -33,7 +33,7 @@ void PhysicsSystem::update(const float dt) const {
 
 void PhysicsSystem::registerRigidBody(GameObject *gameObject, const float &mass, const float &restitution,
                                       const float friction,
-                                      Shape *shape) {
+                                      CollisionShape *shape) {
     bodies.push_back(gameObject->add_rigidbody(mass, restitution, friction, shape));
 }
 
