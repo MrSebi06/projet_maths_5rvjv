@@ -164,10 +164,8 @@ namespace CollisionDetection {
 
         const Vector2 impulse = impulseN + impulseT;
 
-        if (!std::isnan(impulse.x) && !std::isnan(impulse.y))
-            a->impulse(impulse, ra);
-        if (!std::isnan(impulse.x) && !std::isnan(impulse.y))
-            b->impulse(impulse * -1, rb);
+        a->impulse(impulse, ra);
+        b->impulse(impulse * -1, rb);
     }
 }
 

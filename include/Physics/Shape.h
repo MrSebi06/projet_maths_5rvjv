@@ -19,7 +19,7 @@ struct Shape {
 };
 
 struct CircleShape : public Shape {
-    float radius;
+    float radius=0;
 
     explicit CircleShape(const float radius) : radius(radius) {broadRadius = radius;};
     virtual ~CircleShape();
@@ -49,7 +49,7 @@ struct PolygonShape : public Shape {
 };
 
 struct BoxShape : public PolygonShape {
-    float width, height;
+    float width=0, height=0;
     BoxShape(float width, float height);
     virtual ~BoxShape() = default;
     ShapeType GetType() const override;

@@ -17,6 +17,8 @@ std::vector<Vector2> PolygonShape::getTranslatedVertices(const Vector2 &translat
 
 BoxShape::BoxShape(float width, float height)
 {
+    this->width = width;
+    this->height = height;
     vertices = std::vector<Vector2>(4);
     // Generate four corners
     vertices[0] = Vector2(-width / 2, height / 2);
