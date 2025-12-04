@@ -26,7 +26,7 @@ std::vector<Vector2> PolygonCollisionShape::getTranslatedVertices(const Vector2 
     for (auto &re: res) {
         const Vector2 initialPoint = re;
         re.x = initialPoint.x * cosf(rotation) - initialPoint.y * sinf(rotation);
-        re.y = initialPoint.y * cosf(rotation) + initialPoint.x * sinf(rotation);
+        re.y = initialPoint.x * sinf(rotation) + initialPoint.y * cosf(rotation);
         re += translation;
     }
     return res;

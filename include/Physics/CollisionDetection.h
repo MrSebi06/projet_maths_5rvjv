@@ -7,6 +7,8 @@
 
 #include "Rigidbody.h"
 
+#include <cmath>
+
 namespace CollisionDetection {
     struct CollisionInfo {
         Rigidbody2D *a;
@@ -24,16 +26,14 @@ namespace CollisionDetection {
         const auto bPolyShapeSize = bVertices.size();
 
         for (int i = 0; i < aPolyShapeSize; ++i) {
-            // va <=> Vertex A
             Vector2 va = aVertices[i];
             Vector2 edge = aVertices[(i + 1) % aPolyShapeSize] - va;
-            Vector2 normal = edge.perpendicular();
+            Vector2 normal = edge.perpendicular().normalized();
 
             float minSep = std::numeric_limits<float>::max();
             Vector2 minVertex;
             for (int j = 0; j < bPolyShapeSize; ++j) {
                 auto vb = bVertices[j];
-
                 float proj = (vb - va).dot(normal);
                 if (proj < minSep) {
                     minSep = proj;
@@ -43,7 +43,7 @@ namespace CollisionDetection {
 
             if (minSep > separation) {
                 separation = minSep;
-                axis = edge;
+                axis = normal;
                 point = minVertex;
             }
         }
@@ -74,25 +74,25 @@ namespace CollisionDetection {
     }
 
     inline bool is_colliding_polygon_polygon(Rigidbody2D *a, Rigidbody2D *b, CollisionInfo &info) {
-        PolygonCollisionShape *aPolyShape = (PolygonCollisionShape *) a->shape;
-        PolygonCollisionShape *bPolyShape = (PolygonCollisionShape *) b->shape;
+        const auto *aPolyShape = dynamic_cast<PolygonCollisionShape *>(a->shape);
+        const auto *bPolyShape = dynamic_cast<PolygonCollisionShape *>(b->shape);
 
         const Transform &aTransform = *a->transform;
         const Transform &bTransform = *b->transform;
 
-        auto aTranslatedVertices = aPolyShape->
+        const auto aTranslatedVertices = aPolyShape->
                 getTranslatedVertices(aTransform.getPosition(), aTransform.getRotation());
-        auto bTranslatedVertices = bPolyShape->
+        const auto bTranslatedVertices = bPolyShape->
                 getTranslatedVertices(bTransform.getPosition(), bTransform.getRotation());
 
         // Cut algorithm short for time if not needed
         Vector2 aAxis, aPoint;
-        auto abSeparation = min_separation(aTranslatedVertices, bTranslatedVertices, aAxis, aPoint);
+        const auto abSeparation = min_separation(aTranslatedVertices, bTranslatedVertices, aAxis, aPoint);
         if (abSeparation > 0)
             return false;
 
         Vector2 bAxis, bPoint;
-        auto baSeparation = min_separation(bTranslatedVertices, aTranslatedVertices, bAxis, bPoint);
+        const auto baSeparation = min_separation(bTranslatedVertices, aTranslatedVertices, bAxis, bPoint);
         if (baSeparation > 0)
             return false;
 
@@ -101,12 +101,12 @@ namespace CollisionDetection {
 
         if (abSeparation > baSeparation) {
             info.depth = -abSeparation;
-            info.normal = aAxis.perpendicular();
+            info.normal = aAxis;
             info.start = aPoint;
             info.end = aPoint + info.normal * info.depth;
         } else {
             info.depth = -baSeparation;
-            info.normal = bAxis.perpendicular() * -1;
+            info.normal = bAxis * -1;
             info.start = bPoint - info.normal * info.depth;
             info.end = bPoint;
         }
