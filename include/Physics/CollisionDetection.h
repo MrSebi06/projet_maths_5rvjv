@@ -148,8 +148,8 @@ namespace CollisionDetection {
         const float db = d * b->invMass;
 
         std::vector<int> excludedBodies = {info.aIndex, info.bIndex};
-        physics_system->addPositionSticky(excludedBodies, info.aIndex, info.normal * -da);
-        physics_system->addPositionSticky(excludedBodies, info.bIndex, info.normal * db);
+        physics_system->addPositionSticky(&excludedBodies, info.aIndex, info.normal * -da);
+        physics_system->addPositionSticky(&excludedBodies, info.bIndex, info.normal * db);
         // a->transform->addPosition(info.normal * -da);
         // b->transform->addPosition(info.normal * db);
 

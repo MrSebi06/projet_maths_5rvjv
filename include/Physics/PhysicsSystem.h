@@ -26,7 +26,7 @@ public:
     void register_rigid_body(Rigidbody2D *body);
     void unregister_rigid_body(Rigidbody2D *body);
     void clear_bodies();
-    void addPositionSticky(std::vector<int> excludedBodies, int bodyIndex, const Vector2& positionAdded) const;
+    void addPositionSticky(std::vector<int>* excludedBodies, int bodyIndex, const Vector2& positionAdded) const;
 
     void add_wind(const Vector2 &wind_);
 };

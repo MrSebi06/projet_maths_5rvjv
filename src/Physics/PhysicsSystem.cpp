@@ -33,16 +33,24 @@ void PhysicsSystem::update(const float dt) const {
     }
 }
 
-void PhysicsSystem::addPositionSticky(std::vector<int> excludedBodies, int bodyIndex, const Vector2& positionAdded) const {
-    if (std::find(excludedBodies.begin(), excludedBodies.end(), bodyIndex) == excludedBodies.end())
-        excludedBodies.push_back(bodyIndex);
+void PhysicsSystem::addPositionSticky(std::vector<int> *excludedBodies, int bodyIndex, const Vector2 &positionAdded) const {
+    if (bodies[bodyIndex]->mass == 0)
+        return;
+    if (std::ranges::find(*excludedBodies, bodyIndex) == excludedBodies->end())
+        excludedBodies->push_back(bodyIndex);
     std::vector<int> collidingBodies = std::vector<int>();
-    for (int i = bodyIndex+1; i < bodies.size(); ++i) {
-        if (std::find(excludedBodies.begin(), excludedBodies.end(), i) != excludedBodies.end())
+    for (int i = 0; i < bodies.size(); ++i) {
+        if (i == bodyIndex)
+            continue;
+        if (std::ranges::find(*excludedBodies, i) != excludedBodies->end())
             continue;
         CollisionDetection::CollisionInfo info;
-        if (CollisionDetection::is_colliding(bodies[bodyIndex], bodyIndex, bodies[i], i, info)) {
-            excludedBodies.push_back(i);
+        if (
+            ((bodies[i]->transform->getPosition() - bodies[bodyIndex]->transform->getPosition()).magnitude() <= bodies[bodyIndex]->shape->broadRadius ||
+             positionAdded.dot(bodies[i]->transform->getPosition() - bodies[bodyIndex]->transform->getPosition()) < -0.7)
+            &&
+            CollisionDetection::is_colliding(bodies[bodyIndex], bodyIndex, bodies[i], i, info)) {
+            excludedBodies->push_back(i);
             collidingBodies.push_back(i);
         }
     }
@@ -66,7 +74,3 @@ void PhysicsSystem::clear_bodies() {
 void PhysicsSystem::add_wind(const Vector2 &wind_) {
     wind += wind_;
 }
-
-
-
-
