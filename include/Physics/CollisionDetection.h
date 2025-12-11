@@ -117,6 +117,17 @@ namespace CollisionDetection {
             info.end = bPoint;
         }
 
+        if (info.normal.x < 0.05)
+            info.normal.x = 0;
+        if (info.normal.y < 0.05)
+            info.normal.y = 0;
+        if (info.normal.x > 0.9)
+            info.normal.x = 1;
+        if (info.normal.y > 0.9)
+            info.normal.y = 1;
+
+        std::cout << info.normal << std::endl;
+
         return true;
     }
 
