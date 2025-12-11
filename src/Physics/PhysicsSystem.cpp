@@ -27,10 +27,28 @@ void PhysicsSystem::update(const float dt) const {
 
         for (int j = i + 1; j < bodies.size(); ++j) {
             CollisionDetection::CollisionInfo info;
-            if (CollisionDetection::is_colliding(currentBody, bodies[j], info))
-                CollisionDetection::resolve_collision(info);
+            if (CollisionDetection::is_colliding(currentBody, i, bodies[j], j, info))
+                CollisionDetection::resolve_collision(info, this);
         }
     }
+}
+
+void PhysicsSystem::addPositionSticky(std::vector<int> excludedBodies, int bodyIndex, const Vector2& positionAdded) const {
+    if (std::find(excludedBodies.begin(), excludedBodies.end(), bodyIndex) == excludedBodies.end())
+        excludedBodies.push_back(bodyIndex);
+    std::vector<int> collidingBodies = std::vector<int>();
+    for (int i = bodyIndex+1; i < bodies.size(); ++i) {
+        if (std::find(excludedBodies.begin(), excludedBodies.end(), i) != excludedBodies.end())
+            continue;
+        CollisionDetection::CollisionInfo info;
+        if (CollisionDetection::is_colliding(bodies[bodyIndex], bodyIndex, bodies[i], i, info)) {
+            excludedBodies.push_back(i);
+            collidingBodies.push_back(i);
+        }
+    }
+    for (int colliding_body: collidingBodies)
+        addPositionSticky(excludedBodies, colliding_body, positionAdded);
+    bodies[bodyIndex]->transform->addPosition(positionAdded);
 }
 
 void PhysicsSystem::register_rigid_body(Rigidbody2D *body) {

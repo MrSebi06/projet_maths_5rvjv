@@ -12,7 +12,9 @@
 namespace CollisionDetection {
     struct CollisionInfo {
         Rigidbody2D *a;
+        int aIndex;
         Rigidbody2D *b;
+        int bIndex;
         Vector2 start, end;
 
         Vector2 normal;
@@ -51,7 +53,7 @@ namespace CollisionDetection {
         return separation;
     }
 
-    inline bool is_colliding_circle_circle(Rigidbody2D *a, Rigidbody2D *b, CollisionInfo &info) {
+    inline bool is_colliding_circle_circle(Rigidbody2D *a, int aIndex, Rigidbody2D *b, int bIndex, CollisionInfo &info) {
         const auto aCircleShape = dynamic_cast<CircleCollisionShape *>(a->shape);
         const auto bCircleShape = dynamic_cast<CircleCollisionShape *>(b->shape);
 
@@ -63,7 +65,9 @@ namespace CollisionDetection {
         if (!(ab.magnitude_squared() <= radiusSum * radiusSum)) return false;
 
         info.a = a;
+        info.aIndex = aIndex;
         info.b = b;
+        info.bIndex = bIndex;
 
         info.normal = ab.normalized();
         info.start = bPos - info.normal * bCircleShape->radius;
@@ -73,7 +77,7 @@ namespace CollisionDetection {
         return true;
     }
 
-    inline bool is_colliding_polygon_polygon(Rigidbody2D *a, Rigidbody2D *b, CollisionInfo &info) {
+    inline bool is_colliding_polygon_polygon(Rigidbody2D *a, int aIndex, Rigidbody2D *b, int bIndex, CollisionInfo &info) {
         const auto *aPolyShape = dynamic_cast<PolygonCollisionShape *>(a->shape);
         const auto *bPolyShape = dynamic_cast<PolygonCollisionShape *>(b->shape);
 
@@ -97,7 +101,9 @@ namespace CollisionDetection {
             return false;
 
         info.a = a;
+        info.aIndex = aIndex;
         info.b = b;
+        info.bIndex = bIndex;
 
         if (abSeparation > baSeparation) {
             info.depth = -abSeparation;
@@ -114,7 +120,7 @@ namespace CollisionDetection {
         return true;
     }
 
-    inline bool is_colliding(Rigidbody2D *a, Rigidbody2D *b, CollisionInfo &info) {
+    inline bool is_colliding(Rigidbody2D *a, int aIndex, Rigidbody2D *b, int bIndex, CollisionInfo &info) {
         if (a->mass == 0 && b->mass == 0) return false;
         if ((b->transform->getPosition() - a->transform->getPosition()).magnitude() > a->shape->broadRadius + b->shape->
             broadRadius)
@@ -122,17 +128,17 @@ namespace CollisionDetection {
         const ShapeType aType = a->shape->get_type();
         const ShapeType bType = b->shape->get_type();
         if (aType == CIRCLE && bType == CIRCLE)
-            return is_colliding_circle_circle(a, b, info);
+            return is_colliding_circle_circle(a, aIndex, b, bIndex, info);
 
         if (aType == POLYGON && bType == POLYGON)
-            return is_colliding_polygon_polygon(a, b, info);
+            return is_colliding_polygon_polygon(a, aIndex, b, bIndex, info);
 
         // Default failsafe for unimplemented collisions
         return false;
     }
 
 
-    inline void resolve_collision(const CollisionInfo &info) {
+    inline void resolve_collision(const CollisionInfo &info, const PhysicsSystem * physics_system) {
         Rigidbody2D *a = info.a;
         Rigidbody2D *b = info.b;
 
@@ -141,8 +147,11 @@ namespace CollisionDetection {
         const float da = d * a->invMass;
         const float db = d * b->invMass;
 
-        a->transform->addPosition(info.normal * -da);
-        b->transform->addPosition(info.normal * db);
+        std::vector<int> excludedBodies = {info.aIndex, info.bIndex};
+        physics_system->addPositionSticky(excludedBodies, info.aIndex, info.normal * -da);
+        physics_system->addPositionSticky(excludedBodies, info.bIndex, info.normal * db);
+        // a->transform->addPosition(info.normal * -da);
+        // b->transform->addPosition(info.normal * db);
 
         // Impulse algorithm (Changes their velocities to move away)
         const Vector2 ra = info.end - a->transform->getPosition();
