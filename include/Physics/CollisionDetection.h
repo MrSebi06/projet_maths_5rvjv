@@ -114,6 +114,115 @@ namespace CollisionDetection {
         return true;
     }
 
+    inline bool is_colliding_circle_polygon(Rigidbody2D* circle, Rigidbody2D *poly, CollisionInfo &info)
+    {
+        const CircleCollisionShape* circleShape = (CircleCollisionShape*) circle->shape;
+        const PolygonCollisionShape* polygonShape = (PolygonCollisionShape*) poly->shape;
+        const std::vector<Vector2>& polyVertices =
+                polygonShape->getTranslatedVertices(poly->transform->getPosition(), poly->transform->getRotation());
+
+        // First, find the nearest edge to the circle collider
+        Vector2 maxCurVertex, maxNextVertex;
+        float maxProj = std::numeric_limits<float>::lowest();
+        bool circleIsOutside = false;
+        for (int i = 0; i < polyVertices.size(); ++i)
+        {
+            Vector2 curVertex = polyVertices[i];
+            Vector2 nextVertex = polyVertices[(i + 1) % polyVertices.size()];
+
+            Vector2 edge = nextVertex - curVertex;
+            Vector2 normal = edge.perpendicular().normalized();
+
+            Vector2 center = circle->transform->getPosition() - curVertex;
+            float proj = center.dot(normal);
+
+            // If proj > 0 and polygon is convex (Which it should be), this is the nearest edge.
+            // This implies the circle's center is OUTSIDE the box collider
+            if (proj > 0)
+            {
+                maxProj = proj;
+                maxCurVertex = curVertex;
+                maxNextVertex = nextVertex;
+                circleIsOutside = true;
+                break;
+            } else { // If inside, apply a classic max-algorithm (Find the tiniest negative value)
+                if (proj > maxProj)
+                {
+                    maxProj = proj;
+                    maxCurVertex = curVertex;
+                    maxNextVertex = nextVertex;
+                }
+            }
+        }
+
+        if (circleIsOutside)
+        {
+            // Zone A
+            Vector2 v1 = circle->transform->getPosition() - maxCurVertex;
+            Vector2 v2 = maxNextVertex - maxCurVertex;
+            if (v1.dot(v2) < 0)
+            {
+                // Zone detected, but circle not colliding.
+                if (v1.magnitude() > circleShape->radius)
+                    return false;
+
+                info.a = poly;
+                info.b = circle;
+
+                info.depth = circleShape->radius - v1.magnitude();
+                info.normal = v1.normalized();
+
+                info.start = circle->transform->getPosition() + (info.normal * -circleShape->radius);
+                info.end = info.start + (info.normal * info.depth);
+                return true;
+            }
+
+            // Zone 2
+            v1 = circle->transform->getPosition() - maxNextVertex;
+            v2 = maxCurVertex - maxNextVertex;
+            if (v1.dot(v2) < 0)
+            {
+                // Zone detected, but circle not colliding.
+                if (v1.magnitude() > circleShape->radius)
+                    return false;
+
+                info.a = poly;
+                info.b = circle;
+
+                info.depth = circleShape->radius - v1.magnitude();
+                info.normal = v1.normalized();
+
+                info.start = circle->transform->getPosition() + (info.normal * -circleShape->radius);
+                info.end = info.start + (info.normal * info.depth);
+                return true;
+            }
+
+            if (maxProj > circleShape->radius)
+                return false;
+
+            info.a = poly;
+            info.b = circle;
+
+            info.depth = circleShape->radius - maxProj;
+            info.normal = (maxNextVertex - maxCurVertex).perpendicular().normalized();
+
+            info.start = circle->transform->getPosition() - (info.normal * circleShape->radius);
+            info.end = info.start + (info.normal * info.depth);
+        } else {
+            // Circle center inside <=> Obvious collision.
+            info.a = circle;
+            info.b = poly;
+
+            info.depth = circleShape->radius - maxProj;
+            info.normal = (maxNextVertex - maxCurVertex).perpendicular().normalized();
+
+            info.start = circle->transform->getPosition() - (info.normal * circleShape->radius);
+            info.end = info.start + (info.normal * info.depth);
+        }
+
+        return true;
+    }
+
     inline bool is_colliding(Rigidbody2D *a, Rigidbody2D *b, CollisionInfo &info) {
         if (a->mass == 0 && b->mass == 0) return false;
         if ((b->transform->getPosition() - a->transform->getPosition()).magnitude() > a->shape->broadRadius + b->shape->
@@ -126,6 +235,12 @@ namespace CollisionDetection {
 
         if (aType == POLYGON && bType == POLYGON)
             return is_colliding_polygon_polygon(a, b, info);
+
+        if (aType == CIRCLE && bType == POLYGON)
+            return is_colliding_circle_polygon(a, b, info);
+
+        if (aType == POLYGON && bType == CIRCLE)
+            return is_colliding_circle_polygon(b, a, info);
 
         // Default failsafe for unimplemented collisions
         return false;
