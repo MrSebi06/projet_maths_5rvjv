@@ -6,6 +6,7 @@
 #define PROJET_MATHS_5RVJV_GAMEOBJECT_H
 
 #include <memory>
+#include <optional>
 
 #include "Mesh/MeshRenderer.h"
 #include "Vector/Vector2.h"
@@ -15,16 +16,24 @@
 class Rigidbody2D;
 
 class GameObject {
+    bool enabled = true;
+
     Transform transform;
 
     std::unique_ptr<MeshRenderer> renderer = nullptr;
     std::unique_ptr<Rigidbody2D> body = nullptr;
 
 public:
+    std::optional<std::string> name;
+
     explicit GameObject(const Vector2 &position, const float rotation = 0.0)
         : transform{
             Transform(position, rotation)
         } {};
+
+    void enable();
+    void disable();
+    bool isEnabled() const { return enabled; }
 
     void draw() const;
     void add_renderer(const std::shared_ptr<Mesh> &mesh, GLuint shader, const Vector3 &color);

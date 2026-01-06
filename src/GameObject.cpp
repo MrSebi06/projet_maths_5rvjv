@@ -8,8 +8,18 @@
 #include "Mesh/Circle/Circle.h"
 #include "Physics/LiquidBody.h"
 
+void GameObject::enable() {
+    enabled = true;
+    Engine::physics.register_rigid_body(body.get());
+}
+
+void GameObject::disable() {
+    enabled = false;
+    Engine::physics.unregister_rigid_body(body.get());
+}
+
 void GameObject::draw() const {
-    if (renderer == nullptr) return;
+    if (renderer == nullptr || !enabled) return;
     renderer->draw();
 }
 

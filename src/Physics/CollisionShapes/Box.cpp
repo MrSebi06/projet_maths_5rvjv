@@ -1,6 +1,7 @@
 ﻿#include "Physics/CollisionShape.h"
 
 #include "Mesh/Circle/Circle.h"
+#include "Mesh/Polygon/Rect.h"
 #include "Mesh/Polygon/Square.h"
 
 BoxCollisionShape::BoxCollisionShape(const float width, const float height) {
@@ -23,5 +24,5 @@ std::shared_ptr<Mesh> BoxCollisionShape::to_mesh() const {
     if (width == height) {
         return std::make_shared<SquareMesh>(width);
     }
-    throw std::runtime_error("Can't create meshes from BoxCollisionShape that are not squares");
+    return std::make_shared<RectMesh>(width, height);
 }

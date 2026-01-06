@@ -7,6 +7,7 @@
 #include "imgui-1.92.5/backends/imgui_impl_glfw.h"
 #include "imgui-1.92.5/backends/imgui_impl_opengl3.h"
 #include "Engine.h"
+#include "Mesh/Polygon/Rect.h"
 #include "Mesh/Polygon/Square.h"
 #include "Particles/Emitters/LiquidStreamEmitter.h"
 #include "Particles/Emitters/SparkleEmitter.h"
@@ -29,8 +30,10 @@ enum class SpawnObjectType {
     Water
 };
 
+
 auto current_emitter_type = EmitterType::Sparkle;
 auto current_spawn_object_type = SpawnObjectType::Particles;
+std::vector<GameObject *> environment;
 
 void draw_ui();
 
@@ -57,6 +60,29 @@ int main() {
     float deltaTimes[200];
     int deltaIndex = 0;
     std::chrono::time_point<std::chrono::high_resolution_clock> last_tick = std::chrono::high_resolution_clock::now();
+
+    // Environment
+    const auto floor_mesh = std::make_shared<RectMesh>(3.0f, 0.2f);
+    const auto floor = Engine::create_game_object({0, -0.9}, 0);
+    floor->add_renderer(floor_mesh, shaders.base_shader_program, Vector3{0.1});
+    floor->add_rigidbody(0.0, 0.5f, 0.4, new BoxCollisionShape(3.0f, 0.2f), false);
+    floor->name = "Floor";
+    environment.push_back(floor);
+
+    const auto right_wall_mesh = std::make_shared<RectMesh>(0.1f, 3.0f);
+    const auto right_wall = Engine::create_game_object({1.3, 0}, 0);
+    right_wall->add_renderer(right_wall_mesh, shaders.base_shader_program, Vector3{0.1});
+    right_wall->add_rigidbody(0.0, 0.5f, 0.4, new BoxCollisionShape(0.1f, 3.0f), false);
+    right_wall->name = "Right wall";
+    environment.push_back(right_wall);
+
+    const auto left_wall_mesh = std::make_shared<RectMesh>(0.1f, 3.0f);
+    const auto left_wall = Engine::create_game_object({-1.3, 0}, 0);
+    left_wall->add_renderer(left_wall_mesh, shaders.base_shader_program, Vector3{0.1});
+    left_wall->add_rigidbody(0.0, 0.5f, 0.4, new BoxCollisionShape(0.1f, 3.0f), false);
+    left_wall->name = "Left wall";
+    environment.push_back(left_wall);
+
 
     while (!glfwWindowShouldClose(window)) {
         // Calculate delta time using system clock
@@ -158,14 +184,14 @@ void mouse_callback(GLFWwindow *window, const int button, const int action, int 
                 const auto mesh = std::make_shared<SquareMesh>(0.2f);
                 const auto game_object = Engine::create_game_object(pos);
                 game_object->add_renderer(mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
-                game_object->add_rigidbody(0.0, 0.1f, 0.4, new BoxCollisionShape(0.2f, 0.2f), true);
+                game_object->add_rigidbody(0.0, 0.4f, 0.4, new BoxCollisionShape(0.2f, 0.2f), true);
             }
             break;
             case SpawnObjectType::DynamicSquare: {
                 const auto mesh = std::make_shared<SquareMesh>(0.2f);
                 const auto game_object = Engine::create_game_object(pos);
                 game_object->add_renderer(mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
-                game_object->add_rigidbody(1.0, 0.1f, 0.4, new BoxCollisionShape(0.2f, 0.2f), true);
+                game_object->add_rigidbody(1.0, 0.4f, 0.4, new BoxCollisionShape(0.2f, 0.2f), true);
             }
             break;
             case SpawnObjectType::Water: {
@@ -197,8 +223,12 @@ void draw_ui() {
     static int particle_selected_idx = 0;
     static int spawn_object_selected_idx = 0;
 
-    if (ImGui::BeginListBox("EmitterType")) {
-        const char *particles[] = {"Sparkle", "LiquidStream"};
+    const char *particles[] = {"Sparkle", "LiquidStream"};
+    if (ImGui::BeginListBox("Particle emitters",
+                            ImVec2(
+                                0, ImGui::GetTextLineHeightWithSpacing() * IM_ARRAYSIZE(particles) + ImGui::GetStyle().
+                                   FramePadding.y * 2))
+    ) {
         for (int n = 0; n < IM_ARRAYSIZE(particles); n++) {
             const bool is_selected = (particle_selected_idx == n);
             if (ImGui::Selectable(particles[n], is_selected))
@@ -213,8 +243,14 @@ void draw_ui() {
         ImGui::EndListBox();
     }
 
-    if (ImGui::BeginListBox("SpawnObjectType")) {
-        const char *spawn_objects[] = {"Particles", "StaticSphere", "DynamicSphere", "StaticSquare", "DynamicSquare", "Water"};
+    const char *spawn_objects[] = {
+        "Particles", "StaticSphere", "DynamicSphere", "StaticSquare", "DynamicSquare", "Water"
+    };
+    if (ImGui::BeginListBox("Objects to spawn",
+                            ImVec2(
+                                0, ImGui::GetTextLineHeightWithSpacing() * IM_ARRAYSIZE(spawn_objects) +
+                                   ImGui::GetStyle().FramePadding.y * 2))
+    ) {
         for (int n = 0; n < IM_ARRAYSIZE(spawn_objects); n++) {
             const bool is_selected = (spawn_object_selected_idx == n);
             if (ImGui::Selectable(spawn_objects[n], is_selected))
@@ -229,6 +265,17 @@ void draw_ui() {
         ImGui::EndListBox();
     }
 
+    if (ImGui::BeginListBox("Environment",
+                            ImVec2(0, ImGui::GetTextLineHeightWithSpacing() * (environment.size() + 1.5)))) {
+        for (const auto &e: environment) {
+            bool is_enabled = e->isEnabled();
+            if (ImGui::Checkbox(e->name.value_or("Unnamed").c_str(), &is_enabled)) {
+                if (is_enabled) e->enable();
+                else e->disable();
+            }
+        }
+        ImGui::EndListBox();
+    }
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
