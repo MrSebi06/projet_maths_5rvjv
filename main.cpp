@@ -215,8 +215,12 @@ void draw_ui() {
     static int particle_selected_idx = 0;
     static int spawn_object_selected_idx = 0;
 
-    if (ImGui::BeginListBox("Particle emitters")) {
-        const char *particles[] = {"Sparkle", "LiquidStream"};
+    const char *particles[] = {"Sparkle", "LiquidStream"};
+    if (ImGui::BeginListBox("Particle emitters",
+                            ImVec2(
+                                0, ImGui::GetTextLineHeightWithSpacing() * IM_ARRAYSIZE(particles) + ImGui::GetStyle().
+                                   FramePadding.y * 2))
+    ) {
         for (int n = 0; n < IM_ARRAYSIZE(particles); n++) {
             const bool is_selected = (particle_selected_idx == n);
             if (ImGui::Selectable(particles[n], is_selected))
@@ -231,8 +235,12 @@ void draw_ui() {
         ImGui::EndListBox();
     }
 
-    if (ImGui::BeginListBox("Objects to spawn")) {
-        const char *spawn_objects[] = {"Particles", "StaticSphere", "DynamicSphere", "StaticSquare", "DynamicSquare",};
+    const char *spawn_objects[] = {"Particles", "StaticSphere", "DynamicSphere", "StaticSquare", "DynamicSquare",};
+    if (ImGui::BeginListBox("Objects to spawn",
+                            ImVec2(
+                                0, ImGui::GetTextLineHeightWithSpacing() * IM_ARRAYSIZE(spawn_objects) +
+                                   ImGui::GetStyle().FramePadding.y * 2))
+    ) {
         for (int n = 0; n < IM_ARRAYSIZE(spawn_objects); n++) {
             const bool is_selected = (spawn_object_selected_idx == n);
             if (ImGui::Selectable(spawn_objects[n], is_selected))
@@ -247,7 +255,8 @@ void draw_ui() {
         ImGui::EndListBox();
     }
 
-    if (ImGui::BeginListBox("Environment")) {
+    if (ImGui::BeginListBox("Environment",
+                            ImVec2(0, ImGui::GetTextLineHeightWithSpacing() * (environment.size() + 1.5)))) {
         for (const auto &e: environment) {
             bool is_enabled = e->isEnabled();
             if (ImGui::Checkbox(e->name.value_or("Unnamed").c_str(), &is_enabled)) {
