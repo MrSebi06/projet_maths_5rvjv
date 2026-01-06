@@ -57,6 +57,7 @@ add_executable(projet_maths_5rvjv main.cpp
         src/Physics/CollisionShapes/Polygon.cpp
         src/Physics/CollisionShapes/Box.cpp
         include/input.h
+        include/Mesh/Polygon/Rect.h
 )
 
 target_link_libraries(projet_maths_5rvjv ${OPENGL_LIBRARIES} glfw)
