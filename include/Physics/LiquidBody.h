@@ -25,7 +25,7 @@ private:
     static float viscosity_kernel(float r, float h);
 
 public:
-    float density, pressure;
+    float density=1, pressure=0;
 
     LiquidBody(Transform *transform, const float &mass, const float &restitution, float friction,
             CollisionShape *shape, bool debug = false);

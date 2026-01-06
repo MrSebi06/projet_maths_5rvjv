@@ -78,6 +78,8 @@ void LiquidBody::integrate(float dt)
     for (auto neighbor : neighbors)
     {
         auto toNeighbor = neighbor->transform->getPosition() - position;
+        if (neighbor->density == 0 || (toNeighbor.x == 0 && toNeighbor.y == 0))
+            continue;
         auto r = toNeighbor.magnitude();
 
         // Add Pressure force
