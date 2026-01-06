@@ -64,21 +64,21 @@ int main() {
     // Environment
     const auto floor_mesh = std::make_shared<RectMesh>(3.0f, 0.2f);
     const auto floor = Engine::create_game_object({0, -0.9}, 0);
-    floor->add_renderer(floor_mesh, shaders.base_shader_program, Vector3{0.0f, 0.0f, 1.0f});
+    floor->add_renderer(floor_mesh, shaders.base_shader_program, Vector3{0.1});
     floor->add_rigidbody(0.0, 0.5f, 0.4, new BoxCollisionShape(3.0f, 0.2f), false);
     floor->name = "Floor";
     environment.push_back(floor);
 
     const auto right_wall_mesh = std::make_shared<RectMesh>(0.1f, 3.0f);
     const auto right_wall = Engine::create_game_object({1.3, 0}, 0);
-    right_wall->add_renderer(right_wall_mesh, shaders.base_shader_program, Vector3{0.0f, 0.0f, 1.0f});
+    right_wall->add_renderer(right_wall_mesh, shaders.base_shader_program, Vector3{0.1});
     right_wall->add_rigidbody(0.0, 0.5f, 0.4, new BoxCollisionShape(0.1f, 3.0f), false);
     right_wall->name = "Right wall";
     environment.push_back(right_wall);
 
     const auto left_wall_mesh = std::make_shared<RectMesh>(0.1f, 3.0f);
     const auto left_wall = Engine::create_game_object({-1.3, 0}, 0);
-    left_wall->add_renderer(left_wall_mesh, shaders.base_shader_program, Vector3{0.0f, 0.0f, 1.0f});
+    left_wall->add_renderer(left_wall_mesh, shaders.base_shader_program, Vector3{0.1});
     left_wall->add_rigidbody(0.0, 0.5f, 0.4, new BoxCollisionShape(0.1f, 3.0f), false);
     left_wall->name = "Left wall";
     environment.push_back(left_wall);
@@ -243,7 +243,9 @@ void draw_ui() {
         ImGui::EndListBox();
     }
 
-    const char *spawn_objects[] = {"Particles", "StaticSphere", "DynamicSphere", "StaticSquare", "DynamicSquare", "Water"};
+    const char *spawn_objects[] = {
+        "Particles", "StaticSphere", "DynamicSphere", "StaticSquare", "DynamicSquare", "Water"
+    };
     if (ImGui::BeginListBox("Objects to spawn",
                             ImVec2(
                                 0, ImGui::GetTextLineHeightWithSpacing() * IM_ARRAYSIZE(spawn_objects) +
