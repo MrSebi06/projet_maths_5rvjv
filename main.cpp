@@ -26,6 +26,8 @@ enum class SpawnObjectType {
 
     StaticSquare,
     DynamicSquare,
+
+    Water
 };
 
 
@@ -192,6 +194,12 @@ void mouse_callback(GLFWwindow *window, const int button, const int action, int 
                 game_object->add_rigidbody(1.0, 0.4f, 0.4, new BoxCollisionShape(0.2f, 0.2f), true);
             }
             break;
+            case SpawnObjectType::Water: {
+                const auto mesh = std::make_shared<CircleMesh>(0.01f, 20);
+                const auto game_object = Engine::create_game_object(pos);
+                game_object->add_renderer(mesh, shaders.base_shader_program, Vector3(0.0f, 0.0f, 1.0f));
+                game_object->add_liquidbody(0.1f, 0.1f, 0.01f, new CircleCollisionShape(0.01f));
+            }
             default:
                 break;
         }
@@ -235,7 +243,7 @@ void draw_ui() {
         ImGui::EndListBox();
     }
 
-    const char *spawn_objects[] = {"Particles", "StaticSphere", "DynamicSphere", "StaticSquare", "DynamicSquare",};
+    const char *spawn_objects[] = {"Particles", "StaticSphere", "DynamicSphere", "StaticSquare", "DynamicSquare", "Water"};
     if (ImGui::BeginListBox("Objects to spawn",
                             ImVec2(
                                 0, ImGui::GetTextLineHeightWithSpacing() * IM_ARRAYSIZE(spawn_objects) +

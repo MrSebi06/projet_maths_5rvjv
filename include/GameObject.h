@@ -42,6 +42,11 @@ public:
                        float friction,
                        CollisionShape *shape,
                        bool debug = false);
+    void add_liquidbody(const float &mass,
+                        const float &restitution,
+                        float friction,
+                        CollisionShape *shape,
+                        bool debug = false);
 
     Rigidbody2D *get_rigidbody() const { return body.get(); }
     Vector2 get_position() const { return transform.getPosition(); }
