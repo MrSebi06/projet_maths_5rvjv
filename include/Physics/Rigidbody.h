@@ -35,7 +35,7 @@ public:
     void add_torque(float torque);
     void impulse(const Vector2 &impulse, const Vector2 &rotation = {0.0f, 0.0f});
 
-    void integrate(float dt);
+    virtual void integrate(float dt);
 };
 
 #endif //PROJET_MATHS_5RVJV_RIGIDBODY_H
