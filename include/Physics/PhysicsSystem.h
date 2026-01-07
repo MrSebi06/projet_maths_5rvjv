@@ -4,17 +4,20 @@
 
 #ifndef PROJET_MATHS_5RVJV_SIMULATION_H
 #define PROJET_MATHS_5RVJV_SIMULATION_H
+#include <unordered_map>
 #include <vector>
 
 #include "Vector/Vector2.h"
 #include "GameObject.h"
 
+class PhysicsEmitter;
 class Rigidbody2D;
 struct CollisionShape;
 
 
 class PhysicsSystem {
     std::vector<Rigidbody2D *> bodies;
+    std::unordered_map<size_t, PhysicsEmitter *> emitters;
 
 public:
     Vector2 wind;
@@ -26,6 +29,8 @@ public:
     void register_rigid_body(Rigidbody2D *body);
     void unregister_rigid_body(Rigidbody2D *body);
     void clear_bodies();
+
+    void register_emitter(PhysicsEmitter *emitter);
 
     void add_wind(const Vector2 &wind_);
 };

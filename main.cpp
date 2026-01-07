@@ -10,6 +10,7 @@
 #include "imgui-1.92.5/backends/imgui_impl_glfw.h"
 #include "imgui-1.92.5/backends/imgui_impl_opengl3.h"
 #include "Engine.h"
+#include "include/Physics/PhysicsEmitter.h"
 #include "Mesh/Polygon/Rect.h"
 #include "Mesh/Polygon/Square.h"
 #include "Particles/Emitters/LiquidStreamEmitter.h"
@@ -18,7 +19,8 @@
 
 enum class EmitterType {
     Sparkle,
-    LiquidStream
+    LiquidStream,
+    PhysicsLiquid
 };
 
 enum class SpawnObjectType {
@@ -119,6 +121,8 @@ int main() {
         view = glm::translate(view, glm::vec3(-shaders.camera_pos.x, -shaders.camera_pos.y, 0.0f));
         glUseProgram(base_shader_program);
         glUniformMatrix4fv(glGetUniformLocation(base_shader_program, "view"), 1, GL_FALSE, glm::value_ptr(view));
+        glUseProgram(particle_shader_program);
+        glUniformMatrix4fv(glGetUniformLocation(particle_shader_program, "view"), 1, GL_FALSE, glm::value_ptr(view));
 
         Engine::draw();
 
@@ -142,8 +146,9 @@ int main() {
 }
 
 void process_continuous_input(GLFWwindow *window, const float dt) {
-    static Vector2 last_mouse_pos = {0, 0};
     static bool was_dragging = false;
+    static bool was_emitting = false;
+    static Emitter *current_emitter = nullptr;
 
     double xpos, ypos;
     glfwGetCursorPos(window, &xpos, &ypos);
@@ -151,18 +156,32 @@ void process_continuous_input(GLFWwindow *window, const float dt) {
 
     auto *shaders = static_cast<Shaders *>(glfwGetWindowUserPointer(window));
 
-    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && !ImGui::GetIO().WantCaptureMouse) {
-        if (current_spawn_object_type == SpawnObjectType::Particles) {
-            ParticleEmitter *emitter = nullptr;
-            switch (current_emitter_type) {
-                case EmitterType::Sparkle:
-                    emitter = new SparkleEmitter(pos);
-                    break;
-                case EmitterType::LiquidStream:
-                    emitter = new LiquidStreamEmitter(pos);
-                    break;
+    if (current_spawn_object_type == SpawnObjectType::Particles) {
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && !ImGui::GetIO().WantCaptureMouse) {
+            if (!was_emitting) {
+                // First frame of click - create emitter
+                switch (current_emitter_type) {
+                    case EmitterType::Sparkle:
+                        current_emitter = new SparkleEmitter(pos);
+                        break;
+                    case EmitterType::LiquidStream:
+                        current_emitter = new LiquidStreamEmitter(pos);
+                        break;
+                    case EmitterType::PhysicsLiquid:
+                        current_emitter = new PhysicsEmitter(pos, shaders->base_shader_program, 0.1f, 0.1f, 0.01f,
+                                                             new CircleCollisionShape(5.0f), false, true);
+                        break;
+                }
+                current_emitter->start();
+            } else {
+                current_emitter->set_position(pos);
             }
-            emitter->play_for(dt + static_cast<float>(0.1), true);
+            was_emitting = true;
+        } else if (was_emitting) {
+            // Just released
+            current_emitter->stop();
+            current_emitter = nullptr;
+            was_emitting = false;
         }
     }
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS && !ImGui::GetIO().WantCaptureMouse) {
@@ -173,14 +192,13 @@ void process_continuous_input(GLFWwindow *window, const float dt) {
             Vector2 delta = {current_screen.x - last_screen_pos.x, current_screen.y - last_screen_pos.y};
 
             shaders->camera_pos.x -= delta.x / shaders->camera_zoom;
-            shaders->camera_pos.y += delta.y / shaders->camera_zoom; // + because screen Y is inverted
+            shaders->camera_pos.y += delta.y / shaders->camera_zoom;
         }
         was_dragging = true;
         last_screen_pos = current_screen;
     } else {
         was_dragging = false;
     }
-    last_mouse_pos = pos;
     if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
         Engine::physics.add_wind(Vector2(0.1f, 0));
     if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
@@ -275,7 +293,7 @@ void draw_ui() {
     static int particle_selected_idx = 0;
     static int spawn_object_selected_idx = 0;
 
-    const char *particles[] = {"Sparkle", "LiquidStream"};
+    const char *particles[] = {"Sparkles", "Particle Liquid", "Physics Water"};
     if (ImGui::BeginListBox("Particle emitters",
                             ImVec2(
                                 0, ImGui::GetTextLineHeightWithSpacing() * IM_ARRAYSIZE(particles) + ImGui::GetStyle().

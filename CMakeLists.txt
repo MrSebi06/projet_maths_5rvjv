@@ -61,6 +61,10 @@ add_executable(projet_maths_5rvjv main.cpp
         include/Physics/LiquidBody.h
         src/Physics/LiquidBody.cpp
         include/Globals.h
+        src/Emitter.cpp
+        include/Emitter.h
+        src/Physics/PhysicsEmitter.cpp
+        include/Physics/PhysicsEmitter.h
 )
 
 target_link_libraries(projet_maths_5rvjv ${OPENGL_LIBRARIES} glfw)
