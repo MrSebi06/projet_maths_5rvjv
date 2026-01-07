@@ -12,7 +12,7 @@
 
 #include "Globals.h"
 
-#define GRAVITY Vector2(0, -9.81f * WORLD_SCALE)
+#define GRAVITY Vector2(0, -9.81f )
 
 void PhysicsSystem::update(const float dt) const {
     Engine::particles.add_force(wind);

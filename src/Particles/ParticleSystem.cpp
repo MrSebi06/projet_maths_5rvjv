@@ -9,7 +9,7 @@
 
 
 void ParticleSystem::setup_geometry() {
-    constexpr float radius = 4.0f;
+    constexpr float radius = 0.05f;
     constexpr int segments = 18;
     constexpr double angle = 360.0 / segments;
 

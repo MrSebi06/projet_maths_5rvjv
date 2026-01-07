@@ -34,14 +34,14 @@ public:
         Engine::physics.register_emitter(this);
 
         position = position_;
-        spawn_gap = 0.05f;
+        spawn_gap = 0.1f;
 
         lifetime_min = 1.0f;
         lifetime_max = 2.0f;
-        angle_min = -2.0f;
-        angle_max = 2.0f;
-        speed_min = 2.0f;
-        speed_max = 5.0f;
+        angle_min = -0.2f;
+        angle_max = 0.2f;
+        speed_min = 0.2f;
+        speed_max = 1.0f;
     }
 
     void update(float dt) override;

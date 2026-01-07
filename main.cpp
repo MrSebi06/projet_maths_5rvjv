@@ -10,6 +10,7 @@
 #include "imgui-1.92.5/backends/imgui_impl_glfw.h"
 #include "imgui-1.92.5/backends/imgui_impl_opengl3.h"
 #include "Engine.h"
+#include "Globals.h"
 #include "include/Physics/PhysicsEmitter.h"
 #include "Mesh/Polygon/Rect.h"
 #include "Mesh/Polygon/Square.h"
@@ -71,24 +72,24 @@ int main() {
     int width, height;
     glfwGetWindowSize(window, &width, &height);
 
-    const auto floor_mesh = std::make_shared<RectMesh>(width, 20.0f);
-    const auto floor = Engine::create_game_object({static_cast<float>(width / 2.0), 0}, 0);
+    const auto floor_mesh = std::make_shared<RectMesh>(8, 0.5f);
+    const auto floor = Engine::create_game_object({4, 0.1f}, 0);
     floor->add_renderer(floor_mesh, shaders.base_shader_program, Vector3{0.1});
-    floor->add_rigidbody(0.0, 0.5f, 0.4, new BoxCollisionShape(width, 20.0f), false);
+    floor->add_rigidbody(0.0, 0.5f, 0.4, new BoxCollisionShape(8, 0.5f), false);
     floor->name = "Floor";
     environment.push_back(floor);
 
-    const auto right_wall_mesh = std::make_shared<RectMesh>(20.0f, height);
-    const auto right_wall = Engine::create_game_object({static_cast<float>(width), static_cast<float>(height / 2)}, 0);
+    const auto right_wall_mesh = std::make_shared<RectMesh>(0.5f, 6);
+    const auto right_wall = Engine::create_game_object({8, 3}, 0);
     right_wall->add_renderer(right_wall_mesh, shaders.base_shader_program, Vector3{0.1});
-    right_wall->add_rigidbody(0.0, 0.5f, 0.4, new BoxCollisionShape(20.0f, height), false);
+    right_wall->add_rigidbody(0.0, 0.5f, 0.4, new BoxCollisionShape(0.5f, 6), false);
     right_wall->name = "Right wall";
     environment.push_back(right_wall);
 
-    const auto left_wall_mesh = std::make_shared<RectMesh>(20.0f, height);
-    const auto left_wall = Engine::create_game_object({0, static_cast<float>(height / 2)}, 0);
+    const auto left_wall_mesh = std::make_shared<RectMesh>(0.5f, 6);
+    const auto left_wall = Engine::create_game_object({0, 3}, 0);
     left_wall->add_renderer(left_wall_mesh, shaders.base_shader_program, Vector3{0.1});
-    left_wall->add_rigidbody(0.0, 0.5f, 0.4, new BoxCollisionShape(20.0f, height), false);
+    left_wall->add_rigidbody(0.0, 0.5f, 0.4, new BoxCollisionShape(0.5f, 6), false);
     left_wall->name = "Left wall";
     environment.push_back(left_wall);
 
@@ -169,7 +170,7 @@ void process_continuous_input(GLFWwindow *window, const float dt) {
                         break;
                     case EmitterType::PhysicsLiquid:
                         current_emitter = new PhysicsEmitter(pos, shaders->base_shader_program, 0.1f, 0.1f, 0.01f,
-                                                             new CircleCollisionShape(5.0f), false, true);
+                                                             new CircleCollisionShape(0.05f), false, true);
                         break;
                 }
                 current_emitter->start();
@@ -191,8 +192,8 @@ void process_continuous_input(GLFWwindow *window, const float dt) {
         if (was_dragging) {
             Vector2 delta = {current_screen.x - last_screen_pos.x, current_screen.y - last_screen_pos.y};
 
-            shaders->camera_pos.x -= delta.x / shaders->camera_zoom;
-            shaders->camera_pos.y += delta.y / shaders->camera_zoom;
+            shaders->camera_pos.x -= delta.x / shaders->camera_zoom / WORLD_SCALE;
+            shaders->camera_pos.y += delta.y / shaders->camera_zoom / WORLD_SCALE;
         }
         was_dragging = true;
         last_screen_pos = current_screen;
@@ -220,38 +221,38 @@ void mouse_callback(GLFWwindow *window, const int button, const int action, int 
 
         switch (current_spawn_object_type) {
             case SpawnObjectType::StaticSphere: {
-                const auto mesh = std::make_shared<CircleMesh>(10.0f, 30);
+                const auto mesh = std::make_shared<CircleMesh>(0.1f, 30);
                 const auto game_object = Engine::create_game_object(pos);
                 game_object->add_renderer(mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
-                game_object->add_rigidbody(0.0, 0.5f, 0.2, new CircleCollisionShape(10.0f), true);
+                game_object->add_rigidbody(0.0, 0.5f, 0.2, new CircleCollisionShape(0.1f), true);
             }
             break;
             case SpawnObjectType::DynamicSphere: {
-                const auto mesh = std::make_shared<CircleMesh>(10.0f, 30);
+                const auto mesh = std::make_shared<CircleMesh>(0.1f, 30);
                 const auto game_object = Engine::create_game_object(pos);
                 game_object->add_renderer(mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
-                game_object->add_rigidbody(1.0, 0.5f, 0.2, new CircleCollisionShape(10.0f), true);
+                game_object->add_rigidbody(1.0, 0.5f, 0.2, new CircleCollisionShape(0.1f), true);
             }
             break;
             case SpawnObjectType::StaticSquare: {
-                const auto mesh = std::make_shared<SquareMesh>(20.0f);
+                const auto mesh = std::make_shared<SquareMesh>(0.2f);
                 const auto game_object = Engine::create_game_object(pos);
                 game_object->add_renderer(mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
-                game_object->add_rigidbody(0.0, 0.4f, 0.4, new BoxCollisionShape(20.0f, 20.0f), true);
+                game_object->add_rigidbody(0.0, 0.4f, 0.4, new BoxCollisionShape(0.2f, 0.2f), true);
             }
             break;
             case SpawnObjectType::DynamicSquare: {
-                const auto mesh = std::make_shared<SquareMesh>(20.0f);
+                const auto mesh = std::make_shared<SquareMesh>(0.2f);
                 const auto game_object = Engine::create_game_object(pos);
                 game_object->add_renderer(mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
-                game_object->add_rigidbody(1.0, 0.4f, 0.4, new BoxCollisionShape(20.0f, 20.0f), true);
+                game_object->add_rigidbody(1.0, 0.4f, 0.4, new BoxCollisionShape(0.2f, 0.2f), true);
             }
             break;
             case SpawnObjectType::Water: {
-                const auto mesh = std::make_shared<CircleMesh>(5.0f, 20);
+                const auto mesh = std::make_shared<CircleMesh>(0.05f, 20);
                 const auto game_object = Engine::create_game_object(pos);
                 game_object->add_renderer(mesh, shaders.base_shader_program, Vector3(0.0f, 0.0f, 1.0f));
-                game_object->add_liquidbody(0.1f, 0.1f, 0.01f, new CircleCollisionShape(5.0f));
+                game_object->add_liquidbody(0.1f, 0.1f, 0.01f, new CircleCollisionShape(0.05f));
             }
             default:
                 break;

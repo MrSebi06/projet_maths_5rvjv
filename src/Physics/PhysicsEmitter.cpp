@@ -23,7 +23,7 @@ void PhysicsEmitter::update(const float dt) {
     last_spawn += dt;
     if (last_spawn < spawn_gap) return;
 
-    const auto mesh = std::make_shared<CircleMesh>(5.0f, 20);
+    const auto mesh = std::make_shared<CircleMesh>(0.05f, 20);
     const auto game_object = Engine::create_game_object(position);
     game_object->add_renderer(mesh, base_shader_program, Vector3(0.0f, 0.0f, 1.0f));
     game_object->add_liquidbody(mass, restitution, friction, shape);
