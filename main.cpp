@@ -224,28 +224,28 @@ void mouse_callback(GLFWwindow *window, const int button, const int action, int 
                 const auto mesh = std::make_shared<CircleMesh>(0.1f, 30);
                 const auto game_object = Engine::create_game_object(pos);
                 game_object->add_renderer(mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
-                game_object->add_rigidbody(0.0, 0.5f, 0.2, new CircleCollisionShape(0.1f), true);
+                game_object->add_rigidbody(0.0, 0.5f, 0.2, new CircleCollisionShape(0.1f), false);
             }
             break;
             case SpawnObjectType::DynamicSphere: {
                 const auto mesh = std::make_shared<CircleMesh>(0.1f, 30);
                 const auto game_object = Engine::create_game_object(pos);
                 game_object->add_renderer(mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
-                game_object->add_rigidbody(1.0, 0.5f, 0.2, new CircleCollisionShape(0.1f), true);
+                game_object->add_rigidbody(1.0, 0.5f, 0.2, new CircleCollisionShape(0.1f), false);
             }
             break;
             case SpawnObjectType::StaticSquare: {
                 const auto mesh = std::make_shared<SquareMesh>(0.2f);
                 const auto game_object = Engine::create_game_object(pos);
                 game_object->add_renderer(mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
-                game_object->add_rigidbody(0.0, 0.4f, 0.4, new BoxCollisionShape(0.2f, 0.2f), true);
+                game_object->add_rigidbody(0.0, 0.4f, 0.4, new BoxCollisionShape(0.2f, 0.2f), false);
             }
             break;
             case SpawnObjectType::DynamicSquare: {
                 const auto mesh = std::make_shared<SquareMesh>(0.2f);
                 const auto game_object = Engine::create_game_object(pos);
                 game_object->add_renderer(mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
-                game_object->add_rigidbody(1.0, 0.4f, 0.4, new BoxCollisionShape(0.2f, 0.2f), true);
+                game_object->add_rigidbody(1.0, 0.4f, 0.4, new BoxCollisionShape(0.2f, 0.2f), false);
             }
             break;
             case SpawnObjectType::Water: {
