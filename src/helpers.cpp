@@ -5,6 +5,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.inl>
 
+#include "init.h"
+
 
 double deg2rad(const double deg) {
     return deg * (PI / 180);
@@ -12,7 +14,12 @@ double deg2rad(const double deg) {
 
 void set_aspect_ratio(const int width, const int height, const GLuint shader_program) {
     const float aspect = static_cast<float>(width) / static_cast<float>(height);
-    auto projection = glm::ortho(-aspect, aspect, -1.0f, 1.0f, -1.0f, 1.0f);
+    // auto projection = glm::ortho(-aspect, aspect, -1.0f, 1.0f, -1.0f, 1.0f);
+    glm::mat4 projection = glm::ortho(
+        0.0f, static_cast<float>(width),
+        0.0f, static_cast<float>(height),
+        -1.0f, 1.0f
+    );
     glUseProgram(shader_program);
     const GLint proj_loc = glGetUniformLocation(shader_program, "projection");
     glUniformMatrix4fv(proj_loc, 1, GL_FALSE, glm::value_ptr(projection));
@@ -62,12 +69,30 @@ GLuint create_shader_program(const std::string &vert, const std::string &frag) {
     return shader_program;
 }
 
-Vector2 screen_to_world(const float mouseX, const float mouseY) {
-    int width, height;
-    glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
 
-    const float aspect = static_cast<float>(width) / static_cast<float>(height);
-    const float x = (2.0f * mouseX / static_cast<float>(width) - 1.0f) * aspect;
-    const float y = 1.0f - 2.0f * mouseY / static_cast<float>(height);
-    return {x, y};
+Vector2 screen_to_world(GLFWwindow *window, float screen_x, float screen_y) {
+    const Shaders shaders = *static_cast<Shaders *>(glfwGetWindowUserPointer(window));
+
+    int width, height;
+    glfwGetWindowSize(window, &width, &height); // need window access
+
+    // Flip Y (screen Y=0 is top, world Y=0 is bottom)
+    float world_x = screen_x;
+    float world_y = height - screen_y;
+    // Undo view transform (scale then translate)
+    world_x = world_x / shaders.camera_zoom + shaders.camera_pos.x;
+    world_y = world_y / shaders.camera_zoom + shaders.camera_pos.y;
+
+    return {world_x, world_y};
 }
+
+//
+// Vector2 screen_to_world(const float mouseX, const float mouseY) {
+//     int width, height;
+//     glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
+//
+//     const float aspect = static_cast<float>(width) / static_cast<float>(height);
+//     const float x = (2.0f * mouseX / static_cast<float>(width) - 1.0f) * aspect;
+//     const float y = 1.0f - 2.0f * mouseY / static_cast<float>(height);
+//     return {x, y};
+// }

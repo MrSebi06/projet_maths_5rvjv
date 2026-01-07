@@ -7,8 +7,9 @@
 #include <Engine.h>
 #include <Physics/CollisionDetection.h>
 #include <algorithm>
+#include "Globals.h"
 
-#define GRAVITY Vector2(0, -9.81f)
+#define GRAVITY Vector2(0, -9.81f * WORLD_SCALE)
 
 void PhysicsSystem::update(const float dt) const {
     Engine::particles.add_force(wind);
