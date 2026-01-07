@@ -1,0 +1,10 @@
+﻿//
+// Created by mihne on 07/01/2026.
+//
+
+#ifndef PROJET_MATHS_5RVJV_GLOBALS_H
+#define PROJET_MATHS_5RVJV_GLOBALS_H
+
+#define WORLD_SCALE 100
+
+#endif //PROJET_MATHS_5RVJV_GLOBALS_H

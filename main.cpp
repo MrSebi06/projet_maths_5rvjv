@@ -1,5 +1,8 @@
 #include <chrono>
 #include <random>
+#include <glm/ext/matrix_float4x4.hpp>
+#include <glm/ext/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.inl>
 
 #include "init.h"
 #include "input.h"
@@ -43,6 +46,7 @@ int main() {
     GLFWwindow *window = GLFW_init(800, 600);
     glfwSetKeyCallback(window, key_callback);
     glfwSetMouseButtonCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
 
     GLAD_init();
     IMGUI_init(window);
@@ -62,24 +66,27 @@ int main() {
     std::chrono::time_point<std::chrono::high_resolution_clock> last_tick = std::chrono::high_resolution_clock::now();
 
     // Environment
-    const auto floor_mesh = std::make_shared<RectMesh>(3.0f, 0.2f);
-    const auto floor = Engine::create_game_object({0, -0.9}, 0);
+    int width, height;
+    glfwGetWindowSize(window, &width, &height);
+
+    const auto floor_mesh = std::make_shared<RectMesh>(width, 20.0f);
+    const auto floor = Engine::create_game_object({static_cast<float>(width / 2.0), 0}, 0);
     floor->add_renderer(floor_mesh, shaders.base_shader_program, Vector3{0.1});
-    floor->add_rigidbody(0.0, 0.5f, 0.4, new BoxCollisionShape(3.0f, 0.2f), false);
+    floor->add_rigidbody(0.0, 0.5f, 0.4, new BoxCollisionShape(width, 20.0f), false);
     floor->name = "Floor";
     environment.push_back(floor);
 
-    const auto right_wall_mesh = std::make_shared<RectMesh>(0.1f, 3.0f);
-    const auto right_wall = Engine::create_game_object({1.3, 0}, 0);
+    const auto right_wall_mesh = std::make_shared<RectMesh>(20.0f, height);
+    const auto right_wall = Engine::create_game_object({static_cast<float>(width), static_cast<float>(height / 2)}, 0);
     right_wall->add_renderer(right_wall_mesh, shaders.base_shader_program, Vector3{0.1});
-    right_wall->add_rigidbody(0.0, 0.5f, 0.4, new BoxCollisionShape(0.1f, 3.0f), false);
+    right_wall->add_rigidbody(0.0, 0.5f, 0.4, new BoxCollisionShape(20.0f, height), false);
     right_wall->name = "Right wall";
     environment.push_back(right_wall);
 
-    const auto left_wall_mesh = std::make_shared<RectMesh>(0.1f, 3.0f);
-    const auto left_wall = Engine::create_game_object({-1.3, 0}, 0);
+    const auto left_wall_mesh = std::make_shared<RectMesh>(20.0f, height);
+    const auto left_wall = Engine::create_game_object({0, static_cast<float>(height / 2)}, 0);
     left_wall->add_renderer(left_wall_mesh, shaders.base_shader_program, Vector3{0.1});
-    left_wall->add_rigidbody(0.0, 0.5f, 0.4, new BoxCollisionShape(0.1f, 3.0f), false);
+    left_wall->add_rigidbody(0.0, 0.5f, 0.4, new BoxCollisionShape(20.0f, height), false);
     left_wall->name = "Left wall";
     environment.push_back(left_wall);
 
@@ -106,6 +113,13 @@ int main() {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        // Camera
+        glm::mat4 view = glm::mat4(1.0f);
+        view = glm::scale(view, glm::vec3(shaders.camera_zoom, shaders.camera_zoom, 1.0f));
+        view = glm::translate(view, glm::vec3(-shaders.camera_pos.x, -shaders.camera_pos.y, 0.0f));
+        glUseProgram(base_shader_program);
+        glUniformMatrix4fv(glGetUniformLocation(base_shader_program, "view"), 1, GL_FALSE, glm::value_ptr(view));
+
         Engine::draw();
 
         glfwPollEvents();
@@ -128,9 +142,14 @@ int main() {
 }
 
 void process_continuous_input(GLFWwindow *window, const float dt) {
+    static Vector2 last_mouse_pos = {0, 0};
+    static bool was_dragging = false;
+
     double xpos, ypos;
     glfwGetCursorPos(window, &xpos, &ypos);
-    const Vector2 pos = screen_to_world(static_cast<float>(xpos), static_cast<float>(ypos));
+    const Vector2 pos = screen_to_world(window, static_cast<float>(xpos), static_cast<float>(ypos));
+
+    auto *shaders = static_cast<Shaders *>(glfwGetWindowUserPointer(window));
 
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && !ImGui::GetIO().WantCaptureMouse) {
         if (current_spawn_object_type == SpawnObjectType::Particles) {
@@ -146,6 +165,22 @@ void process_continuous_input(GLFWwindow *window, const float dt) {
             emitter->play_for(dt + static_cast<float>(0.1), true);
         }
     }
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS && !ImGui::GetIO().WantCaptureMouse) {
+        static Vector2 last_screen_pos = {0, 0};
+        Vector2 current_screen = {static_cast<float>(xpos), static_cast<float>(ypos)};
+
+        if (was_dragging) {
+            Vector2 delta = {current_screen.x - last_screen_pos.x, current_screen.y - last_screen_pos.y};
+
+            shaders->camera_pos.x -= delta.x / shaders->camera_zoom;
+            shaders->camera_pos.y += delta.y / shaders->camera_zoom; // + because screen Y is inverted
+        }
+        was_dragging = true;
+        last_screen_pos = current_screen;
+    } else {
+        was_dragging = false;
+    }
+    last_mouse_pos = pos;
     if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
         Engine::physics.add_wind(Vector2(0.1f, 0));
     if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
@@ -163,47 +198,64 @@ void mouse_callback(GLFWwindow *window, const int button, const int action, int 
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && !ImGui::GetIO().WantCaptureMouse) {
         double xpos, ypos;
         glfwGetCursorPos(window, &xpos, &ypos);
-        const Vector2 pos = screen_to_world(static_cast<float>(xpos), static_cast<float>(ypos));
+        const Vector2 pos = screen_to_world(window, static_cast<float>(xpos), static_cast<float>(ypos));
 
         switch (current_spawn_object_type) {
             case SpawnObjectType::StaticSphere: {
-                const auto mesh = std::make_shared<CircleMesh>(0.1f, 30);
+                const auto mesh = std::make_shared<CircleMesh>(10.0f, 30);
                 const auto game_object = Engine::create_game_object(pos);
                 game_object->add_renderer(mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
-                game_object->add_rigidbody(0.0, 0.5f, 0.2, new CircleCollisionShape(0.1f), true);
+                game_object->add_rigidbody(0.0, 0.5f, 0.2, new CircleCollisionShape(10.0f), true);
             }
             break;
             case SpawnObjectType::DynamicSphere: {
-                const auto mesh = std::make_shared<CircleMesh>(0.1f, 30);
+                const auto mesh = std::make_shared<CircleMesh>(10.0f, 30);
                 const auto game_object = Engine::create_game_object(pos);
                 game_object->add_renderer(mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
-                game_object->add_rigidbody(1.0, 0.5f, 0.2, new CircleCollisionShape(0.1f), true);
+                game_object->add_rigidbody(1.0, 0.5f, 0.2, new CircleCollisionShape(10.0f), true);
             }
             break;
             case SpawnObjectType::StaticSquare: {
-                const auto mesh = std::make_shared<SquareMesh>(0.2f);
+                const auto mesh = std::make_shared<SquareMesh>(20.0f);
                 const auto game_object = Engine::create_game_object(pos);
                 game_object->add_renderer(mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
-                game_object->add_rigidbody(0.0, 0.4f, 0.4, new BoxCollisionShape(0.2f, 0.2f), true);
+                game_object->add_rigidbody(0.0, 0.4f, 0.4, new BoxCollisionShape(20.0f, 20.0f), true);
             }
             break;
             case SpawnObjectType::DynamicSquare: {
-                const auto mesh = std::make_shared<SquareMesh>(0.2f);
+                const auto mesh = std::make_shared<SquareMesh>(20.0f);
                 const auto game_object = Engine::create_game_object(pos);
                 game_object->add_renderer(mesh, shaders.base_shader_program, Vector3{1.0f, 0.0f, 0.0f});
-                game_object->add_rigidbody(1.0, 0.4f, 0.4, new BoxCollisionShape(0.2f, 0.2f), true);
+                game_object->add_rigidbody(1.0, 0.4f, 0.4, new BoxCollisionShape(20.0f, 20.0f), true);
             }
             break;
             case SpawnObjectType::Water: {
-                const auto mesh = std::make_shared<CircleMesh>(0.01f, 20);
+                const auto mesh = std::make_shared<CircleMesh>(5.0f, 20);
                 const auto game_object = Engine::create_game_object(pos);
                 game_object->add_renderer(mesh, shaders.base_shader_program, Vector3(0.0f, 0.0f, 1.0f));
-                game_object->add_liquidbody(0.1f, 0.1f, 0.01f, new CircleCollisionShape(0.01f));
+                game_object->add_liquidbody(0.1f, 0.1f, 0.01f, new CircleCollisionShape(5.0f));
             }
             default:
                 break;
         }
     }
+}
+
+void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
+    auto *shaders = static_cast<Shaders *>(glfwGetWindowUserPointer(window));
+
+    double xpos, ypos;
+    glfwGetCursorPos(window, &xpos, &ypos);
+    Vector2 world_before = screen_to_world(window, static_cast<float>(xpos), static_cast<float>(ypos));
+
+    shaders->camera_zoom *= (yoffset > 0) ? 1.1f : 0.9f;
+    shaders->camera_zoom = std::clamp(shaders->camera_zoom, 0.1f, 10.0f);
+
+    Vector2 world_after = screen_to_world(window, static_cast<float>(xpos), static_cast<float>(ypos));
+
+    // Adjust camera so the same world point stays under cursor
+    shaders->camera_pos.x += world_before.x - world_after.x;
+    shaders->camera_pos.y += world_before.y - world_after.y;
 }
 
 void key_callback(GLFWwindow *window, const int key, const int scancode, const int action, const int mods) {

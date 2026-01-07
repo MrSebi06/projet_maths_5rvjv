@@ -60,6 +60,7 @@ add_executable(projet_maths_5rvjv main.cpp
         include/Mesh/Polygon/Rect.h
         include/Physics/LiquidBody.h
         src/Physics/LiquidBody.cpp
+        include/Globals.h
 )
 
 target_link_libraries(projet_maths_5rvjv ${OPENGL_LIBRARIES} glfw)
