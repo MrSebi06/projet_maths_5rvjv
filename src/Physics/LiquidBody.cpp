@@ -4,8 +4,8 @@
 
 std::vector<LiquidBody *> LiquidBody::liquidBodies;
 
-const float LiquidBody::NEIGHBORHOOD_RADIUS = 0.2f;
-const float LiquidBody::REST_DENSITY = 0.1;
+const float LiquidBody::NEIGHBORHOOD_RADIUS = 0.35f;
+const float LiquidBody::REST_DENSITY = 0.05;
 
 // Poly6 Kernel with 2D constants
 float LiquidBody::density_kernel(float r, float h) {
@@ -64,13 +64,13 @@ void LiquidBody::integrate(float dt) {
 
     // Difference in density from the preferred value (REST_DENSITY) encourages movement
     // Note: 0.5 is a magic value which we should parameterize...
-    pressure = 0.1f * (density - REST_DENSITY);
+    pressure = 0.5f * (density - REST_DENSITY);
     pressure = std::max(0.0f, pressure);
 
     // Once pressure is calculated, we iterate through neighbors again to apply their forces
     for (auto neighbor: neighbors) {
         auto toNeighbor = neighbor->transform->getPosition() - position;
-        if (neighbor->density == 0 || (toNeighbor.x == 0 && toNeighbor.y == 0))
+        if (neighbor->density == 0 || neighbor->pressure == 0  || (toNeighbor.x == 0 && toNeighbor.y == 0))
             continue;
         auto r = toNeighbor.magnitude();
 
@@ -80,6 +80,14 @@ void LiquidBody::integrate(float dt) {
         auto pressure_force = toNeighbor.normalized() * pressure_strength;
         add_force(pressure_force * -1);
         neighbor->add_force(pressure_force);
+
+        // Add Viscosity force
+        auto relative_velocity = neighbor->velocity - velocity;
+        auto viscosity_strength = (neighbor->mass / neighbor->density) * viscosity_kernel(r, NEIGHBORHOOD_RADIUS);
+        auto viscosity_force = relative_velocity * viscosity_strength * 0.0001f;
+        add_force(viscosity_force);
+        neighbor->add_force(viscosity_force * -1);
+
     }
 
     Rigidbody2D::integrate(dt);

@@ -58,7 +58,11 @@ namespace CollisionDetection {
         const Vector2 aPos = a->transform->getPosition();
         const Vector2 bPos = b->transform->getPosition();
 
-        const Vector2 ab = bPos - aPos;
+        Vector2 ab = bPos - aPos;
+
+        // NaN protection
+        if (ab.x == 0 && ab.y == 0) return false;
+
         const float radiusSum = aCircleShape->radius + bCircleShape->radius;
         if (!(ab.magnitude_squared() <= radiusSum * radiusSum)) return false;
 
@@ -144,7 +148,6 @@ namespace CollisionDetection {
                 maxCurVertex = curVertex;
                 maxNextVertex = nextVertex;
                 circleIsOutside = true;
-                break;
             } else { // If inside, apply a classic max-algorithm (Find the tiniest negative value)
                 if (proj > maxProj)
                 {
