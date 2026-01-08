@@ -64,8 +64,11 @@ int main() {
 
     Engine::init(particle_shader_program, base_shader_program);
 
-    float deltaTimes[200];
+    constexpr int frameSmoothing = 400;
+
+    float deltaTimes[frameSmoothing] = {0};
     int deltaIndex = 0;
+    float averageDT = 0;
     std::chrono::time_point<std::chrono::high_resolution_clock> last_tick = std::chrono::high_resolution_clock::now();
 
     // Environment
@@ -104,14 +107,7 @@ int main() {
 
         process_continuous_input(window, dt);
 
-        float averageDT = 0;
-        for (const float deltaTime: deltaTimes)
-            averageDT += deltaTime;
-
-        averageDT /= 200;
-
-        if (dt < averageDT * 3)
-            Engine::update(dt);
+        Engine::update(averageDT/frameSmoothing);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -131,8 +127,9 @@ int main() {
         draw_ui();
         glfwSwapBuffers(window);
 
+        averageDT += dt - deltaTimes[deltaIndex];
         deltaTimes[deltaIndex] = dt;
-        deltaIndex = (deltaIndex + 1) % 200;
+        deltaIndex = (deltaIndex + 1) % frameSmoothing;
     }
 
     ImGui_ImplOpenGL3_Shutdown();
