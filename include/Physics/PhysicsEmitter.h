@@ -34,7 +34,7 @@ public:
         Engine::physics.register_emitter(this);
 
         position = position_;
-        spawn_gap = 0.002f;
+        spawn_gap = 0.02f;
 
         lifetime_min = 1.0f;
         lifetime_max = 2.0f;
