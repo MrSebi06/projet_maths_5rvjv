@@ -24,29 +24,41 @@ class GameObject {
     std::unique_ptr<Rigidbody2D> body = nullptr;
 
 public:
+    bool velocity_color;
+    Vector3 start_vel_color;
+    Vector3 end_vel_color;
+
     std::optional<std::string> name;
 
     explicit GameObject(const Vector2 &position, const float rotation = 0.0)
         : transform{
             Transform(position, rotation)
-        } {};
+        } {
+    };
 
     void enable();
+
     void disable();
+
     bool isEnabled() const { return enabled; }
 
     void draw() const;
+
     void add_renderer(const std::shared_ptr<Mesh> &mesh, GLuint shader, const Vector3 &color);
+
     void add_rigidbody(const float &mass,
                        const float &restitution,
                        float friction,
                        CollisionShape *shape,
                        bool debug = false);
+
     void add_liquidbody(const float &mass,
                         const float &restitution,
                         float friction,
                         CollisionShape *shape,
                         bool debug = false);
+
+    void enable_velocity_color(const Vector3 &start, const Vector3 &end);
 
     Rigidbody2D *get_rigidbody() const { return body.get(); }
     Vector2 get_position() const { return transform.getPosition(); }

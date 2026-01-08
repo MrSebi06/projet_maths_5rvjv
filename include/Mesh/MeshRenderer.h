@@ -37,6 +37,10 @@ public:
     }
 
     void draw() const;
+
+    void set_color(const Vector3 &color) {
+        this->color = color;
+    }
 };
 
 

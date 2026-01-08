@@ -27,6 +27,7 @@ void PhysicsEmitter::update(const float dt) {
     const auto game_object = Engine::create_game_object(position);
     game_object->add_renderer(mesh, base_shader_program, Vector3(0.0f, 0.0f, 1.0f));
     game_object->add_liquidbody(mass, restitution, friction, shape);
+    game_object->enable_velocity_color({0.0, 0.0, 1.0}, {1.0, 1.0, 1.0});
 
     last_spawn = 0.0f;
 }

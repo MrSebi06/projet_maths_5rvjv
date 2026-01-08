@@ -67,10 +67,11 @@ void LiquidBody::integrate(float dt) {
     pressure = 0.5f * (density - REST_DENSITY);
     pressure = std::max(0.0f, pressure);
 
+
     // Once pressure is calculated, we iterate through neighbors again to apply their forces
     for (auto neighbor: neighbors) {
         auto toNeighbor = neighbor->transform->getPosition() - position;
-        if (neighbor->density == 0 || neighbor->pressure == 0  || (toNeighbor.x == 0 && toNeighbor.y == 0))
+        if (neighbor->density == 0 || neighbor->pressure == 0 || (toNeighbor.x == 0 && toNeighbor.y == 0))
             continue;
         auto r = toNeighbor.magnitude();
 
@@ -87,7 +88,6 @@ void LiquidBody::integrate(float dt) {
         auto viscosity_force = relative_velocity * viscosity_strength * 0.0001f;
         add_force(viscosity_force);
         neighbor->add_force(viscosity_force * -1);
-
     }
 
     Rigidbody2D::integrate(dt);
