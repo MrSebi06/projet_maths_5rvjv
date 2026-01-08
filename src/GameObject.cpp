@@ -23,12 +23,12 @@ void GameObject::disable() {
 void GameObject::draw() const {
     if (renderer == nullptr || !enabled) return;
     if (velocity_color) {
-        constexpr float max_vel = 10.0f;
+        constexpr float max_vel = 4.0f;
         const float current_vel = body.get()->velocity.magnitude();
         const Vector3 color = {
-            std::ranges::clamp(start_vel_color.x + current_vel, start_vel_color.x, end_vel_color.x),
-            std::ranges::clamp(start_vel_color.x + current_vel, start_vel_color.y, end_vel_color.y),
-            std::ranges::clamp(start_vel_color.x + current_vel, start_vel_color.z, end_vel_color.z),
+            std::ranges::clamp((start_vel_color.x + current_vel) / max_vel, start_vel_color.x, end_vel_color.x),
+            std::ranges::clamp((start_vel_color.x + current_vel) / max_vel, start_vel_color.y, end_vel_color.y),
+            std::ranges::clamp((start_vel_color.x + current_vel) / max_vel, start_vel_color.z, end_vel_color.z),
         };
 
         renderer->set_color(color);
